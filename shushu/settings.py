@@ -2,7 +2,7 @@ from enum import Enum
 from logging import INFO
 from typing import Optional, Union
 
-from oltl import TypeString
+from oltl import TypeStringEnum
 from oltl.settings import BaseSettings as OltlBaseSettings
 from pydantic import Field, FilePath, NewPath
 from pydantic_settings import SettingsConfigDict
@@ -35,7 +35,9 @@ class LoggerSettings(BaseSettings):
     file_path: Optional[NewOrExistingPath] = Field(default=None)
 
 
-class InterfaceType(TypeString, Enum): ...
+class InterfaceType(TypeStringEnum):
+    CLI = "cli"
+    API = "api"
 
 
 class GlobalSettings(BaseSettings):
