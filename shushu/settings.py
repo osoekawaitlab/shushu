@@ -1,14 +1,14 @@
 from enum import Enum
 from logging import INFO
-from typing import Optional, Union
+from typing import Literal, Optional, TypeVar, Union
 
-from oltl import TypeStringEnum
 from oltl.settings import BaseSettings as OltlBaseSettings
 from pydantic import Field, FilePath, NewPath
 from pydantic_settings import SettingsConfigDict
 from typing_extensions import Annotated
 
 NewOrExistingPath = Annotated[Union[NewPath, FilePath], "NewOrExistingPath"]
+SettingsT = TypeVar("SettingsT", bound="BaseSettings")
 
 
 class BaseSettings(OltlBaseSettings):
@@ -35,9 +35,19 @@ class LoggerSettings(BaseSettings):
     file_path: Optional[NewOrExistingPath] = Field(default=None)
 
 
-class InterfaceType(TypeStringEnum):
-    CLI = "cli"
-    API = "api"
+class InterfaceType(str, Enum):
+    CLI = "CLI"
+
+
+class BaseInterfaceSettings(BaseSettings):
+    type: InterfaceType
+
+
+class CliInterfaceSettings(BaseInterfaceSettings):
+    type: Literal[InterfaceType.CLI] = InterfaceType.CLI
+
+
+InterfaceSettings = Annotated[CliInterfaceSettings, Field(discriminator="type")]
 
 
 class GlobalSettings(BaseSettings):
@@ -48,9 +58,10 @@ class GlobalSettings(BaseSettings):
         Logger settings
 
     >>> GlobalSettings()
-    GlobalSettings(logger=LoggerSettings(level=20, file_path=None))
+    GlobalSettings(logger=LoggerSettings(level=20, file_path=None), interface_settings=CliInterfaceSettings(type=<InterfaceType.CLI: 'CLI'>))
     >>> GlobalSettings(logger=LoggerSettings(level=10, file_path="logs.log"))
-    GlobalSettings(logger=LoggerSettings(level=10, file_path=PosixPath('logs.log')))
-    """
+    GlobalSettings(logger=LoggerSettings(level=10, file_path=PosixPath('logs.log')), interface_settings=CliInterfaceSettings(type=<InterfaceType.CLI: 'CLI'>))
+    """  # noqa: E501
 
     logger: LoggerSettings = Field(default_factory=LoggerSettings)
+    interface_settings: InterfaceSettings = Field(default_factory=CliInterfaceSettings)
