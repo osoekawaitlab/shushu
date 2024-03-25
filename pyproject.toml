@@ -28,7 +28,9 @@ dependencies = [
     "pydantic",
     "pydantic_settings",
     "JSON-log-formatter",    
-    "oltl @ git+https://github.com/osoekawaitlab/ol-type-library"
+    "oltl @ git+https://github.com/osoekawaitlab/ol-type-library",
+    "beautifulsoup4",
+    "selenium",
 ]
 
 [project.urls]
