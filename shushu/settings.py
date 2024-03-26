@@ -50,6 +50,33 @@ class CliInterfaceSettings(BaseInterfaceSettings):
 InterfaceSettings = Annotated[CliInterfaceSettings, Field(discriminator="type")]
 
 
+class WebAgentType(str, Enum):
+    SELENIUM = "SELENIUM"
+
+
+class BaseWebAgentSettings(BaseSettings):
+    web_agent_type: WebAgentType
+
+
+class SeleniumDriverType(str, Enum):
+    CHROME = "CHROME"
+
+
+class BaseSeleniumWebAgentSettings(BaseWebAgentSettings):
+    web_agent_type: Literal[WebAgentType.SELENIUM] = WebAgentType.SELENIUM
+    selenium_driver_type: SeleniumDriverType
+
+
+class ChromeSeleniumWebAgentSettings(BaseSeleniumWebAgentSettings):
+    selenium_driver_type: Literal[SeleniumDriverType.CHROME] = SeleniumDriverType.CHROME
+
+
+SeleniumWebAgentSettings = Annotated[ChromeSeleniumWebAgentSettings, Field(discriminator="selenium_driver_type")]
+
+
+WebAgentSettings = Annotated[SeleniumWebAgentSettings, Field(discriminator="web_agent_type")]
+
+
 class GlobalSettings(BaseSettings):
     """
     Global settings
@@ -65,3 +92,4 @@ class GlobalSettings(BaseSettings):
 
     logger: LoggerSettings = Field(default_factory=LoggerSettings)
     interface_settings: InterfaceSettings = Field(default_factory=CliInterfaceSettings)
+    web_agent_settings: WebAgentSettings = Field(default_factory=ChromeSeleniumWebAgentSettings)
