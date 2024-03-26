@@ -55,26 +55,30 @@ class WebAgentType(str, Enum):
 
 
 class BaseWebAgentSettings(BaseSettings):
-    web_agent_type: WebAgentType
+    type: WebAgentType
 
 
 class SeleniumDriverType(str, Enum):
     CHROME = "CHROME"
 
 
-class BaseSeleniumWebAgentSettings(BaseWebAgentSettings):
-    web_agent_type: Literal[WebAgentType.SELENIUM] = WebAgentType.SELENIUM
-    selenium_driver_type: SeleniumDriverType
+class BaseSeleniumDriverSettings(BaseSettings):
+    type: SeleniumDriverType
 
 
-class ChromeSeleniumWebAgentSettings(BaseSeleniumWebAgentSettings):
-    selenium_driver_type: Literal[SeleniumDriverType.CHROME] = SeleniumDriverType.CHROME
+class ChromeSeleniumDriverSettings(BaseSeleniumDriverSettings):
+    type: Literal[SeleniumDriverType.CHROME] = SeleniumDriverType.CHROME
 
 
-SeleniumWebAgentSettings = Annotated[ChromeSeleniumWebAgentSettings, Field(discriminator="selenium_driver_type")]
+SeleniumDriverSettings = Annotated[ChromeSeleniumDriverSettings, Field(discriminator="type")]
 
 
-WebAgentSettings = Annotated[SeleniumWebAgentSettings, Field(discriminator="web_agent_type")]
+class SeleniumWebAgentSettings(BaseWebAgentSettings):
+    type: Literal[WebAgentType.SELENIUM] = WebAgentType.SELENIUM
+    driver_settings: SeleniumDriverSettings = Field(default_factory=ChromeSeleniumDriverSettings)
+
+
+WebAgentSettings = Annotated[SeleniumWebAgentSettings, Field(discriminator="type")]
 
 
 class GlobalSettings(BaseSettings):
@@ -85,11 +89,11 @@ class GlobalSettings(BaseSettings):
         Logger settings
 
     >>> GlobalSettings()
-    GlobalSettings(logger=LoggerSettings(level=20, file_path=None), interface_settings=CliInterfaceSettings(type=<InterfaceType.CLI: 'CLI'>))
+    GlobalSettings(logger=LoggerSettings(level=20, file_path=None), interface_settings=CliInterfaceSettings(type=<InterfaceType.CLI: 'CLI'>), web_agent_settings=SeleniumWebAgentSettings(type=<WebAgentType.SELENIUM: 'SELENIUM'>, driver_settings=ChromeSeleniumDriverSettings(type=<SeleniumDriverType.CHROME: 'CHROME'>)))
     >>> GlobalSettings(logger=LoggerSettings(level=10, file_path="logs.log"))
-    GlobalSettings(logger=LoggerSettings(level=10, file_path=PosixPath('logs.log')), interface_settings=CliInterfaceSettings(type=<InterfaceType.CLI: 'CLI'>))
+    GlobalSettings(logger=LoggerSettings(level=10, file_path=PosixPath('logs.log')), interface_settings=CliInterfaceSettings(type=<InterfaceType.CLI: 'CLI'>), web_agent_settings=SeleniumWebAgentSettings(type=<WebAgentType.SELENIUM: 'SELENIUM'>, driver_settings=ChromeSeleniumDriverSettings(type=<SeleniumDriverType.CHROME: 'CHROME'>)))
     """  # noqa: E501
 
     logger: LoggerSettings = Field(default_factory=LoggerSettings)
     interface_settings: InterfaceSettings = Field(default_factory=CliInterfaceSettings)
-    web_agent_settings: WebAgentSettings = Field(default_factory=ChromeSeleniumWebAgentSettings)
+    web_agent_settings: WebAgentSettings = Field(default_factory=SeleniumWebAgentSettings)
