@@ -2,8 +2,9 @@ from logging import Logger
 
 from ..base import BaseComponentFactory
 from ..core import ShushuCore
-from ..settings import InterfaceSettings
+from ..settings import CliInterfaceSettings, InterfaceSettings
 from .base import BaseInterface
+from .cli import CliInterface
 
 
 class InterfaceFactory(BaseComponentFactory[InterfaceSettings, BaseInterface]):
@@ -12,4 +13,6 @@ class InterfaceFactory(BaseComponentFactory[InterfaceSettings, BaseInterface]):
         self._core = core
 
     def create(self, settings: InterfaceSettings) -> BaseInterface:
-        raise NotImplementedError()
+        if isinstance(settings, CliInterfaceSettings):
+            return CliInterface(core=self._core, logger=self._logger)
+        raise TypeError(f"Unsupported settings type: {type(settings)}")
