@@ -12,4 +12,4 @@ class WebAgentFactory(BaseComponentFactory[BaseWebAgentSettings, BaseWebAgent]):
                 logger=self.logger,
                 driver=SeleniumDriverFactory(logger=self.logger).create(settings=settings.driver_settings),
             )
-        raise NotImplementedError()
+        raise ValueError(f"Unsupported web agent settings: {settings}")

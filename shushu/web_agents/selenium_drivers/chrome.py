@@ -3,6 +3,6 @@ from logging import Logger
 from .base import BaseSeleniumDriver
 
 
-class ChromeDriver(BaseSeleniumDriver):
-    def __init__(self, loggger: Logger):
-        super(ChromeDriver, self).__init__(logger=loggger)
+class ChromeSeleniumDriver(BaseSeleniumDriver):
+    def __init__(self, logger: Logger):
+        super(ChromeSeleniumDriver, self).__init__(logger=logger)
