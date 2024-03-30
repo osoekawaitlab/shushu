@@ -27,5 +27,9 @@ def test_shushu_core_performs_web_agent_action(mocker: MockerFixture, logger_fix
     web_agent = mocker.MagicMock(spec=BaseWebAgent)
     sut = ShushuCore(web_agent=web_agent, logger=logger_fixture)
     action = WebAgentCoreAction(action=OpenUrlAction(url={"url": "http://example.com"}))
-    sut.perform(action)
-    web_agent.perform.assert_called_once_with(action.action)
+    with sut:
+        sut.perform(action)
+        web_agent.perform.assert_called_once_with(action.action)
+        web_agent.__enter__.assert_called_once_with()
+        web_agent.__exit__.assert_not_called()
+    web_agent.__exit__.assert_called_once_with(None, None, None)

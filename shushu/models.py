@@ -9,6 +9,7 @@ from .types import (
     ElementId,
     HtmlSource,
     ImageBinary,
+    QueryString,
     SelectorId,
     UrlId,
     UserId,
@@ -60,6 +61,7 @@ class SelectorType(str, Enum):
     XPATH = "XPATH"
     RECTANGLE = "RECTANGLE"
     RELATIVE = "RELATIVE"
+    MINIMUM_ENCLOSING_ELEMENT_WITH_MULTIPLE_TEXTS = "MINIMUM_ENCLOSING_ELEMENT_WITH_MULTIPLE_TEXTS"
 
 
 class BaseSelector(BaseUpdateTimeAwareModel, BaseEntity[SelectorId]):  # type: ignore[misc]
@@ -85,6 +87,13 @@ class RelativeSelectorType(str, Enum):
 class RelativeSelector(BaseSelector):
     type: Literal[SelectorType.RELATIVE] = SelectorType.RELATIVE
     relative_type: RelativeSelectorType
+
+
+class MinimumEnclosingElementWithMultipleTextsSelector(BaseSelector):
+    type: Literal[SelectorType.MINIMUM_ENCLOSING_ELEMENT_WITH_MULTIPLE_TEXTS] = (
+        SelectorType.MINIMUM_ENCLOSING_ELEMENT_WITH_MULTIPLE_TEXTS
+    )
+    target_strings: list[QueryString]
 
 
 Selector = Annotated[Union[XPathSelector, RectangleSelector, RelativeSelector], Field(discriminator="type")]

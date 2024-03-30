@@ -3,7 +3,7 @@ from collections.abc import Iterable
 from contextlib import AbstractContextManager
 from logging import Logger
 from types import TracebackType
-from typing import Optional, Type, TypeVar
+from typing import TypeVar
 
 from ..base import BaseShushuComponent
 from ..models import Element, WebAgentAction
@@ -29,9 +29,9 @@ class BaseWebAgent(BaseShushuComponent, AbstractContextManager["BaseWebAgent"], 
 
     def __exit__(
         self,
-        exc_type: Optional[Type[BaseException]],
-        exc_value: Optional[BaseException],
-        traceback: Optional[TracebackType],
+        __exc_type: type[BaseException] | None,
+        __exc_value: BaseException | None,
+        __traceback: TracebackType | None,
     ) -> None:
         self._end()
 
