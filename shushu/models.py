@@ -10,4 +10,3 @@ class User(BaseUpdateTimeAwareModel, BaseEntity[UserId]):  # type: ignore[misc]
 
 class Url(BaseUpdateTimeAwareModel, BaseEntity[UrlId]):  # type: ignore[misc]
     url: AnyHttpUrl
-    user: User
