@@ -81,6 +81,10 @@ class SeleniumWebAgentSettings(BaseWebAgentSettings):
 WebAgentSettings = Annotated[SeleniumWebAgentSettings, Field(discriminator="type")]
 
 
+class CoreSettings(BaseSettings):
+    web_agent_settings: WebAgentSettings = Field(default_factory=SeleniumWebAgentSettings)
+
+
 class GlobalSettings(BaseSettings):
     """
     Global settings
@@ -88,12 +92,8 @@ class GlobalSettings(BaseSettings):
     logger: LoggerSettings = LoggerSettings()
         Logger settings
 
-    >>> GlobalSettings()
-    GlobalSettings(logger=LoggerSettings(level=20, file_path=None), interface_settings=CliInterfaceSettings(type=<InterfaceType.CLI: 'CLI'>), web_agent_settings=SeleniumWebAgentSettings(type=<WebAgentType.SELENIUM: 'SELENIUM'>, driver_settings=ChromeSeleniumDriverSettings(type=<SeleniumDriverType.CHROME: 'CHROME'>)))
-    >>> GlobalSettings(logger=LoggerSettings(level=10, file_path="logs.log"))
-    GlobalSettings(logger=LoggerSettings(level=10, file_path=PosixPath('logs.log')), interface_settings=CliInterfaceSettings(type=<InterfaceType.CLI: 'CLI'>), web_agent_settings=SeleniumWebAgentSettings(type=<WebAgentType.SELENIUM: 'SELENIUM'>, driver_settings=ChromeSeleniumDriverSettings(type=<SeleniumDriverType.CHROME: 'CHROME'>)))
     """  # noqa: E501
 
-    logger: LoggerSettings = Field(default_factory=LoggerSettings)
+    logger_settings: LoggerSettings = Field(default_factory=LoggerSettings)
     interface_settings: InterfaceSettings = Field(default_factory=CliInterfaceSettings)
-    web_agent_settings: WebAgentSettings = Field(default_factory=SeleniumWebAgentSettings)
+    core_settings: CoreSettings = Field(default_factory=CoreSettings)

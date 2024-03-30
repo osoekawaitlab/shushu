@@ -20,8 +20,8 @@ def main() -> None:
     if config_file_env is None:
         config_file_env = os.getenv("SHUSHU_CONFIG_ENV_FILE_PATH", ".env")
     global_settings = GlobalSettings(_env_file=config_file_env)
-    logger = get_logger(settings=global_settings.logger)
+    logger = get_logger(settings=global_settings.logger_settings)
     logger.info("global settings", extra={"global_settings": global_settings.model_dump()})
-    shushu_core = gen_shushu_core(global_settings=global_settings)
+    shushu_core = gen_shushu_core(settings=global_settings.core_settings, logger=logger)
     interface = InterfaceFactory(core=shushu_core, logger=logger).create(settings=global_settings.interface_settings)
     interface.run(target=args.target)
