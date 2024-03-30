@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from contextlib import AbstractContextManager
 from logging import Logger
 from types import TracebackType
@@ -6,43 +7,34 @@ from typing import Optional, Type, TypeVar
 from ..base import BaseShushuComponent
 from ..models import Url
 
+WebAgentT = TypeVar("WebAgentT", bound="BaseWebAgent")
 
-class BaseWebAgent(BaseShushuComponent):
-    def __init__(self, logger: Logger):
+
+class BaseWebAgent(BaseShushuComponent, AbstractContextManager["BaseWebAgent"], ABC):
+    def __init__(self, target_url: Url, logger: Logger):
         super(BaseWebAgent, self).__init__(logger=logger)
-
-    def open(self, url: Url) -> None:
-        raise NotImplementedError()
-
-    def quit(self) -> None:
-        raise NotImplementedError()
-
-
-WebAgentT = TypeVar("WebAgentT", bound=BaseWebAgent)
-
-
-class WebAgentContext(AbstractContextManager[WebAgentT]):
-    def __init__(self, web_agent: WebAgentT, url: Url):
-        self._web_agent = web_agent
-        self._url = url
+        self._target_url = target_url
 
     @property
-    def web_agent(self) -> WebAgentT:
-        return self._web_agent
+    def target_url(self) -> Url:
+        return self._target_url
 
-    @property
-    def url(self) -> Url:
-        return self._url
+    @abstractmethod
+    def _start(self) -> None:
+        raise NotImplementedError()
 
-    def __enter__(self) -> WebAgentT:
-        self.web_agent.open(url=self.url)
-        return self.web_agent
+    @abstractmethod
+    def _end(self) -> None:
+        raise NotImplementedError()
+
+    def __enter__(self: WebAgentT) -> WebAgentT:
+        self._start()
+        return self
 
     def __exit__(
         self,
         exc_type: Optional[Type[BaseException]],
         exc_value: Optional[BaseException],
         traceback: Optional[TracebackType],
-    ) -> Optional[bool]:
-        self.web_agent.quit()
-        return None
+    ) -> None:
+        self._end()
