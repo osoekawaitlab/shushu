@@ -1,7 +1,7 @@
 from logging import Logger
 
 from .base import BaseShushuComponent
-from .models import CoreAction
+from .models import CoreAction, WebAgentCoreAction
 from .settings import CoreSettings
 from .web_agents.base import BaseWebAgent
 from .web_agents.factory import WebAgentFactory
@@ -17,6 +17,9 @@ class ShushuCore(BaseShushuComponent):
         return self._web_agent
 
     def perform(self, action: CoreAction) -> None:
+        if isinstance(action, WebAgentCoreAction):
+            self.web_agent.perform(action.action)
+            return
         raise NotImplementedError()
 
 
