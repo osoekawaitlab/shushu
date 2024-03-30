@@ -5,19 +5,13 @@ from types import TracebackType
 from typing import Optional, Type, TypeVar
 
 from ..base import BaseShushuComponent
-from ..models import Url
 
 WebAgentT = TypeVar("WebAgentT", bound="BaseWebAgent")
 
 
 class BaseWebAgent(BaseShushuComponent, AbstractContextManager["BaseWebAgent"], ABC):
-    def __init__(self, target_url: Url, logger: Logger):
+    def __init__(self, logger: Logger):
         super(BaseWebAgent, self).__init__(logger=logger)
-        self._target_url = target_url
-
-    @property
-    def target_url(self) -> Url:
-        return self._target_url
 
     @abstractmethod
     def _start(self) -> None:
