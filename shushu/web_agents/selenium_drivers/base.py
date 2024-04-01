@@ -1,3 +1,5 @@
+from collections.abc import Iterable
+
 from ...base import BaseShushuComponent
 from ...models import Element, WebAgentAction
 
@@ -7,4 +9,7 @@ class BaseSeleniumDriver(BaseShushuComponent):
         raise NotImplementedError()
 
     def get_selected_element(self) -> Element:
+        raise NotImplementedError()
+
+    def get_selected_elements(self) -> Iterable[Element]:
         raise NotImplementedError()

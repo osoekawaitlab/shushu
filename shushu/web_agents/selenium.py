@@ -35,4 +35,4 @@ class SeleniumWebAgent(BaseWebAgent):
         return self.driver.get_selected_element()
 
     def get_selected_elements(self) -> Iterable[Element]:
-        raise NotImplementedError()
+        return self.driver.get_selected_elements()
