@@ -6,6 +6,7 @@ from ..settings import SeleniumDriverSettings
 from .base import BaseWebAgent
 from .exceptions import SeleniumDriverNotReadyError
 from .selenium_drivers.base import BaseSeleniumDriver
+from .selenium_drivers.factory import SeleniumDriverFactory
 
 
 class SeleniumWebAgent(BaseWebAgent):
@@ -14,16 +15,21 @@ class SeleniumWebAgent(BaseWebAgent):
         self._driver_settings = driver_settings
         self._driver: BaseSeleniumDriver | None = None
 
-    def _start(self) -> None:
-        raise NotImplementedError()
-
-    def _end(self) -> None:
-        raise NotImplementedError()
-
-    def perform(self, action: WebAgentAction) -> None:
+    @property
+    def driver(self) -> BaseSeleniumDriver:
         if self._driver is None:
             raise SeleniumDriverNotReadyError()
-        raise NotImplementedError()
+        return self._driver
+
+    def _start(self) -> None:
+        self._driver = SeleniumDriverFactory(logger=self._logger).create(settings=self._driver_settings)
+
+    def _end(self) -> None:
+        del self._driver
+        self._driver = None
+
+    def perform(self, action: WebAgentAction) -> None:
+        self.driver.perform(action=action)
 
     def get_selected_element(self) -> Element:
         raise NotImplementedError()

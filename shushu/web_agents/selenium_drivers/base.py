@@ -1,5 +1,7 @@
 from ...base import BaseShushuComponent
+from ...models import WebAgentAction
 
 
 class BaseSeleniumDriver(BaseShushuComponent):
-    pass
+    def perform(self, action: WebAgentAction) -> None:
+        raise NotImplementedError()
