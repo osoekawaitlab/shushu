@@ -3,7 +3,7 @@ from unittest.mock import MagicMock
 from pytest_mock import MockerFixture
 
 from shushu.core import ShushuCore, gen_shushu_core
-from shushu.models import OpenUrlAction, WebAgentCoreAction
+from shushu.models import OpenUrlAction, Url, WebAgentCoreAction
 from shushu.settings import CoreSettings
 from shushu.web_agents.base import BaseWebAgent
 from shushu.web_agents.factory import WebAgentFactory
@@ -26,7 +26,7 @@ def test_gen_shushu_core(mocker: MockerFixture, logger_fixture: MagicMock) -> No
 def test_shushu_core_performs_web_agent_action(mocker: MockerFixture, logger_fixture: MagicMock) -> None:
     web_agent = mocker.MagicMock(spec=BaseWebAgent)
     sut = ShushuCore(web_agent=web_agent, logger=logger_fixture)
-    action = WebAgentCoreAction(action=OpenUrlAction(url={"url": "http://example.com"}))
+    action = WebAgentCoreAction(action=OpenUrlAction(url=Url(value="http://example.com")))
     with sut:
         sut.perform(action)
         web_agent.perform.assert_called_once_with(action.action)

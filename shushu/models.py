@@ -31,7 +31,7 @@ class User(BaseUpdateTimeAwareModel, BaseEntity[UserId]):  # type: ignore[misc]
 
 
 class Url(BaseUpdateTimeAwareModel, BaseEntity[UrlId]):  # type: ignore[misc]
-    url: AnyHttpUrl
+    value: AnyHttpUrl
 
 
 class CoreActionType(str, Enum):
@@ -124,6 +124,6 @@ CoreAction = Annotated[WebAgentCoreAction, Field(discriminator="type")]
 
 class Element(BaseUpdateTimeAwareModel, BaseEntity[ElementId]):  # type: ignore[misc]
     url: Url
-    htmlSource: HtmlSource
-    screenshotPng: Optional[ImageBinary] = None
+    html_source: HtmlSource
+    screenshot_png: Optional[ImageBinary] = None
     location: Optional[Rectangle] = None

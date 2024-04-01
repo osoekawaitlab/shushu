@@ -1,7 +1,10 @@
 from ...base import BaseShushuComponent
-from ...models import WebAgentAction
+from ...models import Element, WebAgentAction
 
 
 class BaseSeleniumDriver(BaseShushuComponent):
     def perform(self, action: WebAgentAction) -> None:
+        raise NotImplementedError()
+
+    def get_selected_element(self) -> Element:
         raise NotImplementedError()

@@ -3,7 +3,7 @@ from unittest.mock import MagicMock
 import pytest
 from pytest_mock import MockerFixture
 
-from shushu.models import OpenUrlAction, Url
+from shushu.models import Element, OpenUrlAction, Url
 from shushu.settings import ChromeSeleniumDriverSettings
 from shushu.web_agents.exceptions import SeleniumDriverNotReadyError
 from shushu.web_agents.selenium import SeleniumWebAgent
@@ -15,7 +15,7 @@ def test_perform_raises_exception_when_driver_is_not_ready(mocker: MockerFixture
 
     sut = SeleniumWebAgent(driver_settings=settings, logger=logger_fixture)
 
-    some_action = OpenUrlAction(url=Url(url="http://localhost:8080"))
+    some_action = OpenUrlAction(url=Url(value="http://localhost:8080"))
 
     with pytest.raises(SeleniumDriverNotReadyError):
         sut.perform(some_action)
@@ -28,7 +28,7 @@ def test_perform_calls_driver_perform(mocker: MockerFixture, logger_fixture: Mag
     SeleniumDriverFactory.return_value.create.return_value = selenium_driver
     sut = SeleniumWebAgent(driver_settings=settings, logger=logger_fixture)
 
-    some_action = OpenUrlAction(url=Url(url="http://localhost:8080"))
+    some_action = OpenUrlAction(url=Url(value="http://localhost:8080"))
 
     with sut:
         sut.perform(some_action)
@@ -39,3 +39,28 @@ def test_perform_calls_driver_perform(mocker: MockerFixture, logger_fixture: Mag
     SeleniumDriverFactory.assert_called_once_with(logger=logger_fixture)
     SeleniumDriverFactory.return_value.create.assert_called_once_with(settings=settings)
     selenium_driver.perform.assert_called_once_with(action=some_action)
+
+
+def test_get_selected_element_raises_exception_when_driver_is_not_ready(logger_fixture: MagicMock) -> None:
+    settings = ChromeSeleniumDriverSettings()
+
+    sut = SeleniumWebAgent(driver_settings=settings, logger=logger_fixture)
+
+    with pytest.raises(SeleniumDriverNotReadyError):
+        sut.get_selected_element()
+
+
+def test_get_selected_element_calls_driver_get_selected_element(
+    mocker: MockerFixture, logger_fixture: MagicMock
+) -> None:
+    settings = ChromeSeleniumDriverSettings()
+    expected = Element(url=Url(value="http://localhost:8080"), html_source="<div>test</div>")
+    selenium_driver = mocker.MagicMock(spec=BaseSeleniumDriver)
+    selenium_driver.get_selected_element.return_value = expected
+    SeleniumDriverFactory = mocker.patch("shushu.web_agents.selenium.SeleniumDriverFactory")
+    SeleniumDriverFactory.return_value.create.return_value = selenium_driver
+    sut = SeleniumWebAgent(driver_settings=settings, logger=logger_fixture)
+    with sut:
+        actual = sut.get_selected_element()
+
+    assert actual == expected
