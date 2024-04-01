@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Annotated, Literal, Union
+from typing import Annotated, Literal, Optional, Union
 
 from oltl import BaseEntity, BaseModel, BaseUpdateTimeAwareModel
 from pydantic import AnyHttpUrl, Field
@@ -125,5 +125,5 @@ CoreAction = Annotated[WebAgentCoreAction, Field(discriminator="type")]
 class Element(BaseUpdateTimeAwareModel, BaseEntity[ElementId]):  # type: ignore[misc]
     url: Url
     htmlSource: HtmlSource
-    screenshotPng: ImageBinary
-    location: Rectangle
+    screenshotPng: Optional[ImageBinary] = None
+    location: Optional[Rectangle] = None
