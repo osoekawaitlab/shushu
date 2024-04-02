@@ -14,7 +14,7 @@ from shushu.models import (
     MultipleElementsWebAgentActionResult,
     NoneWebAgentActionResult,
     OpenUrlAction,
-    SelectEelementAction,
+    SelectElementAction,
     SelectElementsAction,
     SingleElementWebAgentActionResult,
     Url,
@@ -72,7 +72,7 @@ def test_perform_select_element_action(logger_fixture: MagicMock, mocker: Mocker
     )
     sut = DerivedSeleniumDriver(logger=logger_fixture)
     with freeze_time(dt):
-        actual = sut.perform(SelectEelementAction(selector=XPathSelector(xpath="//div[@id='test']")))
+        actual = sut.perform(SelectElementAction(selector=XPathSelector(xpath="//div[@id='test']")))
     assert actual == expected
     mock_web_driver.find_element.assert_called_once_with(By.XPATH, "//div[@id='test']")
     mock_web_driver.reset_mock()
@@ -84,7 +84,7 @@ def test_perform_select_element_action_no_such_element(logger_fixture: MagicMock
     mock_web_driver.find_element.return_value = None
     mock_web_driver.find_element.side_effect = NoSuchElementException()
     sut = DerivedSeleniumDriver(logger=logger_fixture)
-    actual = sut.perform(SelectEelementAction(selector=XPathSelector(xpath="//div[@id='test']")))
+    actual = sut.perform(SelectElementAction(selector=XPathSelector(xpath="//div[@id='test']")))
     assert isinstance(actual, NoneWebAgentActionResult)
     mock_web_driver.find_element.assert_called_once_with(By.XPATH, "//div[@id='test']")
     mock_web_driver.reset_mock()
@@ -117,7 +117,7 @@ def test_perform_select_element_action_with_last_url(logger_fixture: MagicMock, 
     sut = DerivedSeleniumDriver(logger=logger_fixture)
     sut.perform(OpenUrlAction(url=url))
     with freeze_time(dt):
-        actual = sut.perform(SelectEelementAction(selector=XPathSelector(xpath="//div[@id='test']")))
+        actual = sut.perform(SelectElementAction(selector=XPathSelector(xpath="//div[@id='test']")))
     assert actual == expected
     mock_web_driver.find_element.assert_called_once_with(By.XPATH, "//div[@id='test']")
     mock_web_driver.reset_mock()

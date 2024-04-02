@@ -92,14 +92,12 @@ class SelectElementsAction(BaseWebAgentAction):
     selector: Selector
 
 
-class SelectEelementAction(BaseWebAgentAction):
+class SelectElementAction(BaseWebAgentAction):
     type: Literal[WebAgentActionType.SELECT_ELEMENT] = WebAgentActionType.SELECT_ELEMENT
     selector: Selector
 
 
-WebAgentAction = Annotated[
-    Union[OpenUrlAction, SelectElementsAction, SelectEelementAction], Field(discriminator="type")
-]
+WebAgentAction = Annotated[Union[OpenUrlAction, SelectElementsAction, SelectElementAction], Field(discriminator="type")]
 
 
 class WebAgentCoreAction(BaseCoreAction):
