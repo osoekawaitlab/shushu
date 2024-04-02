@@ -127,3 +127,44 @@ class Element(BaseUpdateTimeAwareModel, BaseEntity[ElementId]):  # type: ignore[
     html_source: HtmlSource
     screenshot_png: Optional[ImageBinary] = None
     location: Optional[Rectangle] = None
+
+
+class WebAgentActionResultType(str, Enum):
+    NONE = "NONE"
+    SINGLE_ELEMENT = "SINGLE_ELEMENT"
+    MULTIPLE_ELEMENTS = "MULTIPLE_ELEMENTS"
+    ERROR = "ERROR"
+
+
+class BaseWebAgentActionResult(BaseModel):
+    type: WebAgentActionResultType
+
+
+class NoneWebAgentActionResult(BaseWebAgentActionResult):
+    type: Literal[WebAgentActionResultType.NONE] = WebAgentActionResultType.NONE
+
+
+class SingleElementWebAgentActionResult(BaseWebAgentActionResult):
+    type: Literal[WebAgentActionResultType.SINGLE_ELEMENT] = WebAgentActionResultType.SINGLE_ELEMENT
+    element: Element
+
+
+class MultipleElementsWebAgentActionResult(BaseWebAgentActionResult):
+    type: Literal[WebAgentActionResultType.MULTIPLE_ELEMENTS] = WebAgentActionResultType.MULTIPLE_ELEMENTS
+    elements: list[Element]
+
+
+class ErrorWebAgentActionResult(BaseWebAgentActionResult):
+    type: Literal[WebAgentActionResultType.ERROR] = WebAgentActionResultType.ERROR
+    message: str
+
+
+WebAgentActionResult = Annotated[
+    Union[
+        NoneWebAgentActionResult,
+        SingleElementWebAgentActionResult,
+        MultipleElementsWebAgentActionResult,
+        ErrorWebAgentActionResult,
+    ],
+    Field(discriminator="type"),
+]
