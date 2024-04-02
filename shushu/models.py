@@ -60,7 +60,6 @@ class OpenUrlAction(BaseWebAgentAction):
 class SelectorType(str, Enum):
     XPATH = "XPATH"
     RECTANGLE = "RECTANGLE"
-    RELATIVE = "RELATIVE"
     MINIMUM_ENCLOSING_ELEMENT_WITH_MULTIPLE_TEXTS = "MINIMUM_ENCLOSING_ELEMENT_WITH_MULTIPLE_TEXTS"
 
 
@@ -78,17 +77,6 @@ class RectangleSelector(BaseSelector):
     rectangle: Rectangle
 
 
-class RelativeSelectorType(str, Enum):
-    PARENT = "PARENT"
-    CHILD = "CHILD"
-    SIBLING = "SIBLING"
-
-
-class RelativeSelector(BaseSelector):
-    type: Literal[SelectorType.RELATIVE] = SelectorType.RELATIVE
-    relative_type: RelativeSelectorType
-
-
 class MinimumEnclosingElementWithMultipleTextsSelector(BaseSelector):
     type: Literal[SelectorType.MINIMUM_ENCLOSING_ELEMENT_WITH_MULTIPLE_TEXTS] = (
         SelectorType.MINIMUM_ENCLOSING_ELEMENT_WITH_MULTIPLE_TEXTS
@@ -96,7 +84,7 @@ class MinimumEnclosingElementWithMultipleTextsSelector(BaseSelector):
     target_strings: list[QueryString]
 
 
-Selector = Annotated[Union[XPathSelector, RectangleSelector, RelativeSelector], Field(discriminator="type")]
+Selector = Annotated[Union[XPathSelector, RectangleSelector], Field(discriminator="type")]
 
 
 class SelectElementsAction(BaseWebAgentAction):
