@@ -1,15 +1,77 @@
-from collections.abc import Iterable
+from abc import abstractmethod
+from logging import Logger
+
+from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.common.by import By
+from selenium.webdriver.remote.webdriver import WebDriver
 
 from ...base import BaseShushuComponent
-from ...models import Element, WebAgentAction
+from ...models import (
+    Element,
+    MinimumEnclosingElementWithMultipleTextsSelector,
+    MultipleElementsWebAgentActionResult,
+    NoneWebAgentActionResult,
+    OpenUrlAction,
+    RectangleSelector,
+    SelectEelementAction,
+    SelectElementsAction,
+    SingleElementWebAgentActionResult,
+    Url,
+    WebAgentAction,
+    WebAgentActionResult,
+    XPathSelector,
+)
 
 
 class BaseSeleniumDriver(BaseShushuComponent):
-    def perform(self, action: WebAgentAction) -> None:
+    def __init__(self, logger: Logger) -> None:
+        super(BaseSeleniumDriver, self).__init__(logger=logger)
+        self._init_driver()
+        self._driver: WebDriver
+        self._last_url: Url | None = None
+
+    def __del__(self) -> None:
+        self._driver.quit()
+
+    @abstractmethod
+    def _init_driver(self) -> None:
         raise NotImplementedError()
 
-    def get_selected_element(self) -> Element:
-        raise NotImplementedError()
-
-    def get_selected_elements(self) -> Iterable[Element]:
+    def perform(self, action: WebAgentAction) -> WebAgentActionResult:
+        if isinstance(action, OpenUrlAction):
+            self._driver.get(url=str(action.url.value))
+            self._last_url = action.url
+            return NoneWebAgentActionResult()
+        if isinstance(action, SelectEelementAction):
+            try:
+                if isinstance(action.selector, XPathSelector):
+                    element = self._driver.find_element(By.XPATH, action.selector.xpath)
+                else:
+                    raise NotImplementedError()
+            except NoSuchElementException:
+                return NoneWebAgentActionResult()
+            if self._last_url is not None and str(self._last_url.value) == self._driver.current_url:
+                url = self._last_url
+            else:
+                url = Url(value=self._driver.current_url)
+            return SingleElementWebAgentActionResult(
+                element=Element(url=url, html_source=element.get_attribute("outerHTML"))
+            )
+        if isinstance(action, SelectElementsAction):
+            try:
+                if isinstance(action.selector, XPathSelector):
+                    elements = self._driver.find_elements(By.XPATH, action.selector.xpath)
+                else:
+                    raise NotImplementedError()
+            except NoSuchElementException:
+                return NoneWebAgentActionResult()
+            if self._last_url is not None and str(self._last_url.value) == self._driver.current_url:
+                url = self._last_url
+            else:
+                url = Url(value=self._driver.current_url)
+            return MultipleElementsWebAgentActionResult(
+                elements=[Element(url=url, html_source=d.get_attribute("outerHTML")) for d in elements]
+            )
+        MinimumEnclosingElementWithMultipleTextsSelector,
+        RectangleSelector,
         raise NotImplementedError()
