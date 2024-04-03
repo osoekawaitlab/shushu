@@ -28,3 +28,11 @@ def test_get_minimum_enclosing_element_with_multiple_texts(http_server_fixture: 
     minelem = res.element
     assert minelem.tag_name == "li"
     assert "list-item" in minelem.classes
+    res = driver.perform(
+        SelectElementAction(
+            selector=MinimumEnclosingElementWithMultipleTextsSelector(target_strings=["始まりの村", "装備"])
+        )
+    )
+    assert res is not None
+    minelem = res.element
+    assert minelem.tag_name == "ul"

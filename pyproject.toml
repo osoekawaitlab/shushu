@@ -109,4 +109,13 @@ legacy_tox_ini = """
         pflake8 shushu/ tests/ stubs/
         mypy shushu --strict --show-traceback
         mypy tests --strict
+
+    [testenv:e2e]
+    passenv = DISPLAY
+    setenv = 
+        VIRTUALENV_PIP = 24.0
+    deps =
+        -e .[dev]
+    commands =
+        pytest e2e
 """
