@@ -55,6 +55,7 @@ dev=[
     "pytest-cov",
     "freezegun",
     "types-python-dateutil",
+    "types-beautifulsoup4",
     "factory_boy",
     "polyfactory",
 ]
