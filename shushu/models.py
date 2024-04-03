@@ -1,10 +1,13 @@
 from enum import Enum
 from typing import Annotated, Literal, Optional, Union
 
+from bs4 import BeautifulSoup, NavigableString, Tag
 from oltl import BaseEntity, BaseModel, BaseUpdateTimeAwareModel
 from pydantic import AnyHttpUrl, Field
 
 from .types import (
+    ClassSet,
+    ClassString,
     CoreActionId,
     ElementId,
     HtmlSource,
@@ -84,7 +87,10 @@ class MinimumEnclosingElementWithMultipleTextsSelector(BaseSelector):
     target_strings: list[QueryString]
 
 
-Selector = Annotated[Union[XPathSelector, RectangleSelector], Field(discriminator="type")]
+Selector = Annotated[
+    Union[XPathSelector, RectangleSelector, MinimumEnclosingElementWithMultipleTextsSelector],
+    Field(discriminator="type"),
+]
 
 
 class SelectElementsAction(BaseWebAgentAction):
@@ -113,6 +119,44 @@ class Element(BaseUpdateTimeAwareModel, BaseEntity[ElementId]):  # type: ignore[
     html_source: HtmlSource
     screenshot_png: Optional[ImageBinary] = None
     location: Optional[Rectangle] = None
+
+    @property
+    def parsed_html(self) -> BeautifulSoup:
+        self._parsed_html: BeautifulSoup
+        if not hasattr(self, "_parsed_html") or self._parsed_html is None:
+            setattr(self, "_parsed_html", BeautifulSoup(self.html_source, "html.parser"))
+        return self._parsed_html
+
+    @property
+    def root(self) -> Tag | None | NavigableString:
+        return self.parsed_html.find(True)
+
+    @property
+    def classes(self) -> ClassSet:
+        """
+        Returns the set of classes of the element.
+
+        Returns:
+            ClassSet: The set of classes of the element.
+
+        >>> element = Element(url=Url(value="https://example.com"), html_source="<div class='foo'></div>")
+        >>> element.classes
+        ClassSet({ClassString('foo')})
+        >>> element = Element(url=Url(value="https://example.com"), html_source="<div class='foo bar'></div>")
+        >>> element.classes
+        ClassSet({ClassString('...'), ClassString('...')})
+        >>> element = Element(url=Url(value="https://example.com"), html_source="<div></div>")
+        >>> element.classes
+        ClassSet()
+        """
+        if isinstance(self.root, NavigableString) or self.root is None:
+            return ClassSet()
+        classes = self.root.get("class")
+        if classes is None:
+            return ClassSet()
+        if isinstance(classes, str):
+            return ClassSet(ClassString.from_str(c) for c in classes.split(""))
+        return ClassSet(ClassString.from_str(c) for c in classes)
 
 
 class WebAgentActionResultType(str, Enum):
