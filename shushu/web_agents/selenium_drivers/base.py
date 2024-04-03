@@ -22,6 +22,7 @@ from ...models import (
     WebAgentActionResult,
     XPathSelector,
 )
+from ...types import QueryString
 
 
 class BaseSeleniumDriver(BaseShushuComponent):
@@ -39,8 +40,8 @@ class BaseSeleniumDriver(BaseShushuComponent):
         raise NotImplementedError()
 
     def _find_minimum_enclosing_element_with_multiple_texts(
-        self, element: WebElement, target_strings: list[str]
-    ) -> WebElement:
+        self, element: WebElement, target_strings: list[QueryString]
+    ) -> WebElement | None:
         text = element.text
         if any(target_string not in text for target_string in target_strings):
             return None
@@ -63,9 +64,12 @@ class BaseSeleniumDriver(BaseShushuComponent):
                 if isinstance(action.selector, XPathSelector):
                     element = self._driver.find_element(By.XPATH, action.selector.xpath)
                 elif isinstance(action.selector, MinimumEnclosingElementWithMultipleTextsSelector):
-                    element = self._find_minimum_enclosing_element_with_multiple_texts(
-                        self._driver.find_element(By.XPATH, "/"), action.selector.target_strings
+                    tmp = self._find_minimum_enclosing_element_with_multiple_texts(
+                        self._driver.find_element(By.XPATH, "/*"), action.selector.target_strings
                     )
+                    if tmp is None:
+                        raise NoSuchElementException()
+                    element = tmp
             except NoSuchElementException:
                 return NoneWebAgentActionResult()
             if self._last_url is not None and str(self._last_url.value) == self._driver.current_url:
@@ -90,6 +94,5 @@ class BaseSeleniumDriver(BaseShushuComponent):
             return MultipleElementsWebAgentActionResult(
                 elements=[Element(url=url, html_source=d.get_attribute("outerHTML")) for d in elements]
             )
-        MinimumEnclosingElementWithMultipleTextsSelector,
         RectangleSelector,
         raise NotImplementedError()
