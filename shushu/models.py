@@ -14,6 +14,7 @@ from .types import (
     ImageBinary,
     QueryString,
     SelectorId,
+    TagString,
     UrlId,
     UserId,
     UserNameString,
@@ -157,6 +158,22 @@ class Element(BaseUpdateTimeAwareModel, BaseEntity[ElementId]):  # type: ignore[
         if isinstance(classes, str):
             return ClassSet(ClassString.from_str(c) for c in classes.split(""))
         return ClassSet(ClassString.from_str(c) for c in classes)
+
+    @property
+    def tag_name(self) -> TagString | None:
+        """
+        Returns the tag name of the element.
+
+        Returns:
+            str: The tag name of the element.
+
+        >>> element = Element(url=Url(value="https://example.com"), html_source="<div></div>")
+        >>> element.tag_name
+        TagString('div')
+        """
+        if isinstance(self.root, NavigableString) or self.root is None:
+            return None
+        return TagString.from_str(self.root.name)
 
 
 class WebAgentActionResultType(str, Enum):
