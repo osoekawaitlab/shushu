@@ -48,6 +48,12 @@ def test_get_selected_element_raises_error_when_no_element_is_selected(logger_fi
         sut.get_selected_element()
 
 
+def test_get_selected_elements_raises_error_when_no_element_is_selected(logger_fixture: MagicMock) -> None:
+    sut = DerivedSeleniumDriver(logger=logger_fixture)
+    with pytest.raises(NoElementSelectedError):
+        sut.get_selected_elements()
+
+
 def test_perform_open_url_action(logger_fixture: MagicMock) -> None:
     mock_web_driver.reset_mock()
     sut = DerivedSeleniumDriver(logger=logger_fixture)
@@ -82,6 +88,10 @@ def test_perform_select_element_action(logger_fixture: MagicMock, mocker: Mocker
     with freeze_time(dt):
         actual = sut.perform(SelectElementAction(selector=XPathSelector(xpath="//div[@id='test']")))
     assert actual == expected
+    selected_element = sut.get_selected_element()
+    assert selected_element == expected.element
+    selected_elements = sut.get_selected_elements()
+    assert selected_elements == [expected.element]
     mock_web_driver.find_element.assert_called_once_with(By.XPATH, "//div[@id='test']")
     mock_web_driver.reset_mock()
 

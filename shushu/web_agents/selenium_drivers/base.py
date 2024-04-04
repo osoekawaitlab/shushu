@@ -95,4 +95,13 @@ class BaseSeleniumDriver(BaseShushuComponent):
     def get_selected_element(self) -> Element:
         if self._selected_element is None:
             raise NoElementSelectedError()
+        if isinstance(self._selected_element, list):
+            raise NotImplementedError()
+        return self._selected_element
+
+    def get_selected_elements(self) -> list[Element]:
+        if self._selected_element is None:
+            raise NoElementSelectedError()
+        if isinstance(self._selected_element, Element):
+            return [self._selected_element]
         raise NotImplementedError()
