@@ -31,7 +31,6 @@ class BaseSeleniumDriver(BaseShushuComponent):
         super(BaseSeleniumDriver, self).__init__(logger=logger)
         self._init_driver()
         self._driver: WebDriver
-        self._last_url: Url | None = None
         self._selected_element: Element | list[Element] | None = None
 
     def __del__(self) -> None:
@@ -59,7 +58,6 @@ class BaseSeleniumDriver(BaseShushuComponent):
     def perform(self, action: WebAgentAction) -> WebAgentActionResult:
         if isinstance(action, OpenUrlAction):
             self._driver.get(url=str(action.url.value))
-            self._last_url = action.url
             return NoneWebAgentActionResult()
         if isinstance(action, SelectElementAction):
             try:
@@ -74,10 +72,7 @@ class BaseSeleniumDriver(BaseShushuComponent):
                     element = tmp
             except NoSuchElementException:
                 return NoneWebAgentActionResult()
-            if self._last_url is not None and str(self._last_url.value) == self._driver.current_url:
-                url = self._last_url
-            else:
-                url = Url(value=self._driver.current_url)
+            url = Url(value=self._driver.current_url)
             return SingleElementWebAgentActionResult(
                 element=Element(url=url, html_source=element.get_attribute("outerHTML"))
             )
@@ -89,10 +84,7 @@ class BaseSeleniumDriver(BaseShushuComponent):
                     raise NotImplementedError()
             except NoSuchElementException:
                 return NoneWebAgentActionResult()
-            if self._last_url is not None and str(self._last_url.value) == self._driver.current_url:
-                url = self._last_url
-            else:
-                url = Url(value=self._driver.current_url)
+            url = Url(value=self._driver.current_url)
             return MultipleElementsWebAgentActionResult(
                 elements=[Element(url=url, html_source=d.get_attribute("outerHTML")) for d in elements]
             )
