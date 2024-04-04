@@ -73,6 +73,7 @@ class BaseSeleniumDriver(BaseShushuComponent):
             except NoSuchElementException:
                 return NoneWebAgentActionResult()
             url = Url(value=self._driver.current_url)
+            self._selected_element = Element(url=url, html_source=element.get_attribute("outerHTML"))
             return SingleElementWebAgentActionResult(
                 element=Element(url=url, html_source=element.get_attribute("outerHTML"))
             )
