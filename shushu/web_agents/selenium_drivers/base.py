@@ -23,6 +23,7 @@ from ...models import (
     XPathSelector,
 )
 from ...types import QueryString
+from .exceptions import NoElementSelectedError
 
 
 class BaseSeleniumDriver(BaseShushuComponent):
@@ -31,6 +32,7 @@ class BaseSeleniumDriver(BaseShushuComponent):
         self._init_driver()
         self._driver: WebDriver
         self._last_url: Url | None = None
+        self._selected_element: Element | list[Element] | None = None
 
     def __del__(self) -> None:
         self._driver.quit()
@@ -95,4 +97,9 @@ class BaseSeleniumDriver(BaseShushuComponent):
                 elements=[Element(url=url, html_source=d.get_attribute("outerHTML")) for d in elements]
             )
         RectangleSelector,
+        raise NotImplementedError()
+
+    def get_selected_element(self) -> Element:
+        if self._selected_element is None:
+            raise NoElementSelectedError()
         raise NotImplementedError()

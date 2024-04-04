@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 from unittest.mock import MagicMock
 
+import pytest
 from freezegun import freeze_time
 from oltl import Id
 from pytest_mock import MockerFixture
@@ -21,6 +22,7 @@ from shushu.models import (
     XPathSelector,
 )
 from shushu.web_agents.selenium_drivers.base import BaseSeleniumDriver
+from shushu.web_agents.selenium_drivers.exceptions import NoElementSelectedError
 
 mock_web_driver = MagicMock(spec=WebDriver)
 
@@ -38,6 +40,12 @@ def test_constructor_and_destructor(logger_fixture: MagicMock) -> None:
     del sut
     mock_web_driver.quit.assert_called_once_with()
     mock_web_driver.reset_mock()
+
+
+def test_get_selected_element_raises_error_when_no_element_is_selected(logger_fixture: MagicMock) -> None:
+    sut = DerivedSeleniumDriver(logger=logger_fixture)
+    with pytest.raises(NoElementSelectedError):
+        sut.get_selected_element()
 
 
 def test_perform_open_url_action(logger_fixture: MagicMock) -> None:
@@ -63,7 +71,7 @@ def test_perform_select_element_action(logger_fixture: MagicMock, mocker: Mocker
         element=Element(
             id=id_,
             html_source="<div>test</div>",
-            url=Url(value="http://localhost:8080/", created_at=dt, updated_at=dt, id=id_),
+            url=Url(value="http://localhost:8080/"),
             created_at=dt,
             updated_at=dt,
         ),
@@ -139,14 +147,14 @@ def test_perform_select_elements_action(logger_fixture: MagicMock, mocker: Mocke
             Element(
                 id=id_,
                 html_source="<div>test0</div>",
-                url=Url(value="http://localhost:8080/", created_at=dt, updated_at=dt, id=id_),
+                url=Url(value="http://localhost:8080/"),
                 created_at=dt,
                 updated_at=dt,
             ),
             Element(
                 id=id_,
                 html_source="<div>test1</div>",
-                url=Url(value="http://localhost:8080/", created_at=dt, updated_at=dt, id=id_),
+                url=Url(value="http://localhost:8080/"),
                 created_at=dt,
                 updated_at=dt,
             ),

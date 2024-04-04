@@ -15,7 +15,6 @@ from .types import (
     QueryString,
     SelectorId,
     TagString,
-    UrlId,
     UserId,
     UserNameString,
     WebAgentActionId,
@@ -34,7 +33,7 @@ class User(BaseUpdateTimeAwareModel, BaseEntity[UserId]):  # type: ignore[misc]
     username: UserNameString
 
 
-class Url(BaseUpdateTimeAwareModel, BaseEntity[UrlId]):  # type: ignore[misc]
+class Url(BaseModel):
     value: AnyHttpUrl
 
 
