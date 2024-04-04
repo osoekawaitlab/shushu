@@ -9,7 +9,7 @@ from shushu.settings import LoggerSettings
 from shushu.web_agents.selenium_drivers.chrome import ChromeSeleniumDriver
 
 
-def test_get_minimum_enclosing_element_with_multiple_texts(http_server_fixture: str):
+def test_get_minimum_enclosing_element_with_multiple_texts(http_server_fixture: str) -> None:
     logger = get_logger(settings=LoggerSettings())
     driver = ChromeSeleniumDriver(logger=logger)
     driver.perform(OpenUrlAction(url=Url(value=http_server_fixture)))
