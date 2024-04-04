@@ -86,9 +86,8 @@ class BaseSeleniumDriver(BaseShushuComponent):
             except NoSuchElementException:
                 return NoneWebAgentActionResult()
             url = Url(value=self._driver.current_url)
-            return MultipleElementsWebAgentActionResult(
-                elements=[Element(url=url, html_source=d.get_attribute("outerHTML")) for d in elements]
-            )
+            self._selected_element = [Element(url=url, html_source=d.get_attribute("outerHTML")) for d in elements]
+            return MultipleElementsWebAgentActionResult(elements=self._selected_element.copy())
         RectangleSelector,
         raise NotImplementedError()
 
@@ -96,7 +95,7 @@ class BaseSeleniumDriver(BaseShushuComponent):
         if self._selected_element is None:
             raise NoElementSelectedError()
         if isinstance(self._selected_element, list):
-            raise NotImplementedError()
+            return self._selected_element[0]
         return self._selected_element
 
     def get_selected_elements(self) -> list[Element]:
@@ -104,4 +103,4 @@ class BaseSeleniumDriver(BaseShushuComponent):
             raise NoElementSelectedError()
         if isinstance(self._selected_element, Element):
             return [self._selected_element]
-        raise NotImplementedError()
+        return self._selected_element
