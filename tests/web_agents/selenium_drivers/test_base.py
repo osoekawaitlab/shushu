@@ -99,7 +99,6 @@ def test_perform_select_element_action_no_such_element(logger_fixture: MagicMock
 
 
 def test_perform_select_element_action_with_last_url(logger_fixture: MagicMock, mocker: MockerFixture) -> None:
-    url_id = Id("01HTFKJH9SQ9YNVPW75RF6JS0C")
     id_ = Id("01HTFESX9K7JAB3K2FQSWPKZKS")
     mocker.patch("oltl.Id.generate", return_value=id_)
     mock_web_driver.reset_mock()
@@ -109,7 +108,7 @@ def test_perform_select_element_action_with_last_url(logger_fixture: MagicMock, 
     mock_web_driver.find_element.return_value = mock_element
     mock_web_driver.current_url = "http://localhost:8080/"
     dt = datetime(2024, 4, 2, 4, 11, 12, 941018, tzinfo=timezone.utc)
-    url = Url(value="http://localhost:8080/", id=url_id)
+    url = Url(value="http://localhost:8080/")
     expected = SingleElementWebAgentActionResult(
         id=id_,
         element=Element(
@@ -183,7 +182,6 @@ def test_perform_select_elements_action_no_such_element(logger_fixture: MagicMoc
 
 
 def test_perform_select_elements_action_with_last_url(logger_fixture: MagicMock, mocker: MockerFixture) -> None:
-    url_id = Id("01HTFKJH9SQ9YNVPW75RF6JS0C")
     id_ = Id("01HTFM98TZWX0A52DMGQARK516")
     mocker.patch("oltl.Id.generate", return_value=id_)
     mock_web_driver.reset_mock()
@@ -194,7 +192,7 @@ def test_perform_select_elements_action_with_last_url(logger_fixture: MagicMock,
     mock_web_driver.find_elements.return_value = mock_elements
     mock_web_driver.current_url = "http://localhost:8080/"
     dt = datetime(2024, 4, 2, 5, 44, 41, 434553, tzinfo=timezone.utc)
-    url = Url(value="http://localhost:8080/", id=url_id)
+    url = Url(value="http://localhost:8080/")
     expected = MultipleElementsWebAgentActionResult(
         id=id_,
         elements=[
