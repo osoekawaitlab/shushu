@@ -1,6 +1,6 @@
 from logging import Logger
 
-from ..models import WebAgentAction, WebAgentActionResult
+from ..models import Element, WebAgentAction, WebAgentActionResult
 from ..settings import SeleniumDriverSettings
 from .base import BaseWebAgent
 from .exceptions import SeleniumDriverNotReadyError
@@ -29,3 +29,6 @@ class SeleniumWebAgent(BaseWebAgent):
 
     def perform(self, action: WebAgentAction) -> WebAgentActionResult:
         return self.driver.perform(action=action)
+
+    def get_selected_element(self) -> Element:
+        return self.driver.get_selected_element()
