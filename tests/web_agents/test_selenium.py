@@ -70,3 +70,34 @@ def test_get_selected_element_raises_exception_when_driver_is_not_ready(
 
     with pytest.raises(SeleniumDriverNotReadyError):
         sut.get_selected_element()
+
+
+def test_get_selected_elements_calls_driver_get_selected_elements(
+    mocker: MockerFixture, logger_fixture: MagicMock
+) -> None:
+    settings = ChromeSeleniumDriverSettings()
+    selenium_driver = mocker.MagicMock(spec=BaseSeleniumDriver)
+    SeleniumDriverFactory = mocker.patch("shushu.web_agents.selenium.SeleniumDriverFactory")
+    SeleniumDriverFactory.return_value.create.return_value = selenium_driver
+    sut = SeleniumWebAgent(driver_settings=settings, logger=logger_fixture)
+
+    with sut:
+        actual = sut.get_selected_elements()
+    assert selenium_driver.get_selected_elements.return_value == actual
+
+    assert sut._driver is None
+
+    SeleniumDriverFactory.assert_called_once_with(logger=logger_fixture)
+    SeleniumDriverFactory.return_value.create.assert_called_once_with(settings=settings)
+    selenium_driver.get_selected_elements.assert_called_once_with()
+
+
+def test_get_selected_elements_raises_exception_when_driver_is_not_ready(
+    mocker: MockerFixture, logger_fixture: MagicMock
+) -> None:
+    settings = ChromeSeleniumDriverSettings()
+
+    sut = SeleniumWebAgent(driver_settings=settings, logger=logger_fixture)
+
+    with pytest.raises(SeleniumDriverNotReadyError):
+        sut.get_selected_elements()

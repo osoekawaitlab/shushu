@@ -1,3 +1,4 @@
+from collections.abc import Sequence
 from logging import Logger
 
 from ..models import Element, WebAgentAction, WebAgentActionResult
@@ -32,3 +33,6 @@ class SeleniumWebAgent(BaseWebAgent):
 
     def get_selected_element(self) -> Element:
         return self.driver.get_selected_element()
+
+    def get_selected_elements(self) -> Sequence[Element]:
+        return self.driver.get_selected_elements()
