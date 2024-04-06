@@ -38,7 +38,7 @@ class BaseSeleniumDriver(BaseShushuComponent):
         raise NotImplementedError()
 
     @property
-    def selector(self) -> Selector | None:
+    def selector(self) -> Selector:
         if self._selector is None:
             raise NoElementSelectedError()
         return self._selector
