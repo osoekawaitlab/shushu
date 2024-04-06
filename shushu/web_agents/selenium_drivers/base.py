@@ -10,20 +10,16 @@ from ...base import BaseShushuComponent
 from ...models import (
     Element,
     MinimumEnclosingElementWithMultipleTextsSelector,
-    MultipleElementsWebAgentActionResult,
-    NoneWebAgentActionResult,
     OpenUrlAction,
     RectangleSelector,
-    SelectElementAction,
-    SelectElementsAction,
-    SingleElementWebAgentActionResult,
+    Selector,
+    SetSelectorAction,
     Url,
     WebAgentAction,
-    WebAgentActionResult,
     XPathSelector,
 )
 from ...types import QueryString
-from .exceptions import NoElementSelectedError
+from .exceptions import NoElementFoundError, NoElementSelectedError
 
 
 class BaseSeleniumDriver(BaseShushuComponent):
@@ -31,7 +27,7 @@ class BaseSeleniumDriver(BaseShushuComponent):
         super(BaseSeleniumDriver, self).__init__(logger=logger)
         self._init_driver()
         self._driver: WebDriver
-        self._selected_element: Element | list[Element] | None = None
+        self._selector: Selector | None = None
 
     def __del__(self) -> None:
         self._driver.quit()
@@ -39,6 +35,10 @@ class BaseSeleniumDriver(BaseShushuComponent):
     @abstractmethod
     def _init_driver(self) -> None:
         raise NotImplementedError()
+
+    @property
+    def selector(self) -> Selector | None:
+        return self._selector
 
     def _find_minimum_enclosing_element_with_multiple_texts(
         self, element: WebElement, target_strings: list[QueryString]
@@ -55,52 +55,42 @@ class BaseSeleniumDriver(BaseShushuComponent):
             ...
         return element
 
-    def perform(self, action: WebAgentAction) -> WebAgentActionResult:
+    def perform(self, action: WebAgentAction) -> None:
         if isinstance(action, OpenUrlAction):
             self._driver.get(url=str(action.url.value))
-            return NoneWebAgentActionResult()
-        if isinstance(action, SelectElementAction):
-            try:
-                if isinstance(action.selector, XPathSelector):
-                    element = self._driver.find_element(By.XPATH, action.selector.xpath)
-                elif isinstance(action.selector, MinimumEnclosingElementWithMultipleTextsSelector):
-                    tmp = self._find_minimum_enclosing_element_with_multiple_texts(
-                        self._driver.find_element(By.XPATH, "/*"), action.selector.target_strings
-                    )
-                    if tmp is None:
-                        raise NoSuchElementException()
-                    element = tmp
-            except NoSuchElementException:
-                return NoneWebAgentActionResult()
-            url = Url(value=self._driver.current_url)
-            self._selected_element = Element(url=url, html_source=element.get_attribute("outerHTML"))
-            return SingleElementWebAgentActionResult(
-                element=Element(url=url, html_source=element.get_attribute("outerHTML"))
-            )
-        if isinstance(action, SelectElementsAction):
-            try:
-                if isinstance(action.selector, XPathSelector):
-                    elements = self._driver.find_elements(By.XPATH, action.selector.xpath)
-                else:
-                    raise NotImplementedError()
-            except NoSuchElementException:
-                return NoneWebAgentActionResult()
-            url = Url(value=self._driver.current_url)
-            self._selected_element = [Element(url=url, html_source=d.get_attribute("outerHTML")) for d in elements]
-            return MultipleElementsWebAgentActionResult(elements=self._selected_element.copy())
+            return
+        if isinstance(action, SetSelectorAction):
+            self._selector = action.selector
+            return
         RectangleSelector,
         raise NotImplementedError()
 
     def get_selected_element(self) -> Element:
-        if self._selected_element is None:
+        if self._selector is None:
             raise NoElementSelectedError()
-        if isinstance(self._selected_element, list):
-            return self._selected_element[0]
-        return self._selected_element
+        try:
+            if isinstance(self._selector, XPathSelector):
+                element = self._driver.find_element(By.XPATH, self._selector.xpath)
+            elif isinstance(self._selector, MinimumEnclosingElementWithMultipleTextsSelector):
+                tmp = self._find_minimum_enclosing_element_with_multiple_texts(
+                    self._driver.find_element(By.XPATH, "/*"), self._selector.target_strings
+                )
+                if tmp is None:
+                    raise NoSuchElementException()
+                element = tmp
+        except NoSuchElementException:
+            raise NoElementFoundError()
+        return Element(url=Url(value=self._driver.current_url), html_source=element.get_attribute("outerHTML"))
 
     def get_selected_elements(self) -> list[Element]:
-        if self._selected_element is None:
+        if self._selector is None:
             raise NoElementSelectedError()
-        if isinstance(self._selected_element, Element):
-            return [self._selected_element]
-        return self._selected_element
+        try:
+            if isinstance(self._selector, XPathSelector):
+                elements = self._driver.find_elements(By.XPATH, self._selector.xpath)
+            else:
+                raise NotImplementedError()
+        except NoSuchElementException:
+            raise NoElementFoundError()
+        url = Url(value=self._driver.current_url)
+        return [Element(url=url, html_source=d.get_attribute("outerHTML")) for d in elements]

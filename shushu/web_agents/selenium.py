@@ -1,7 +1,7 @@
 from collections.abc import Sequence
 from logging import Logger
 
-from ..models import Element, WebAgentAction, WebAgentActionResult
+from ..models import Element, WebAgentAction
 from ..settings import SeleniumDriverSettings
 from .base import BaseWebAgent
 from .exceptions import SeleniumDriverNotReadyError
@@ -28,7 +28,7 @@ class SeleniumWebAgent(BaseWebAgent):
         del self._driver
         self._driver = None
 
-    def perform(self, action: WebAgentAction) -> WebAgentActionResult:
+    def perform(self, action: WebAgentAction) -> None:
         return self.driver.perform(action=action)
 
     def get_selected_element(self) -> Element:

@@ -43,8 +43,7 @@ class CoreActionType(str, Enum):
 
 class WebAgentActionType(str, Enum):
     OPEN_URL = "OPEN_URL"
-    SELECT_ELEMENTS = "SELECT_ELEMENTS"
-    SELECT_ELEMENT = "SELECT_ELEMENT"
+    SET_SELECTOR = "SET_SELECTOR"
 
 
 class BaseCoreAction(BaseUpdateTimeAwareModel, BaseEntity[CoreActionId]):  # type: ignore[misc]
@@ -93,17 +92,12 @@ Selector = Annotated[
 ]
 
 
-class SelectElementsAction(BaseWebAgentAction):
-    type: Literal[WebAgentActionType.SELECT_ELEMENTS] = WebAgentActionType.SELECT_ELEMENTS
+class SetSelectorAction(BaseWebAgentAction):
+    type: Literal[WebAgentActionType.SET_SELECTOR] = WebAgentActionType.SET_SELECTOR
     selector: Selector
 
 
-class SelectElementAction(BaseWebAgentAction):
-    type: Literal[WebAgentActionType.SELECT_ELEMENT] = WebAgentActionType.SELECT_ELEMENT
-    selector: Selector
-
-
-WebAgentAction = Annotated[Union[OpenUrlAction, SelectElementsAction, SelectElementAction], Field(discriminator="type")]
+WebAgentAction = Annotated[Union[OpenUrlAction, SetSelectorAction], Field(discriminator="type")]
 
 
 class WebAgentCoreAction(BaseCoreAction):
@@ -173,44 +167,3 @@ class Element(BaseUpdateTimeAwareModel, BaseEntity[ElementId]):  # type: ignore[
         if isinstance(self.root, NavigableString) or self.root is None:
             return None
         return TagString.from_str(self.root.name)
-
-
-class WebAgentActionResultType(str, Enum):
-    NONE = "NONE"
-    SINGLE_ELEMENT = "SINGLE_ELEMENT"
-    MULTIPLE_ELEMENTS = "MULTIPLE_ELEMENTS"
-    ERROR = "ERROR"
-
-
-class BaseWebAgentActionResult(BaseModel):
-    type: WebAgentActionResultType
-
-
-class NoneWebAgentActionResult(BaseWebAgentActionResult):
-    type: Literal[WebAgentActionResultType.NONE] = WebAgentActionResultType.NONE
-
-
-class SingleElementWebAgentActionResult(BaseWebAgentActionResult):
-    type: Literal[WebAgentActionResultType.SINGLE_ELEMENT] = WebAgentActionResultType.SINGLE_ELEMENT
-    element: Element
-
-
-class MultipleElementsWebAgentActionResult(BaseWebAgentActionResult):
-    type: Literal[WebAgentActionResultType.MULTIPLE_ELEMENTS] = WebAgentActionResultType.MULTIPLE_ELEMENTS
-    elements: list[Element]
-
-
-class ErrorWebAgentActionResult(BaseWebAgentActionResult):
-    type: Literal[WebAgentActionResultType.ERROR] = WebAgentActionResultType.ERROR
-    message: str
-
-
-WebAgentActionResult = Annotated[
-    Union[
-        NoneWebAgentActionResult,
-        SingleElementWebAgentActionResult,
-        MultipleElementsWebAgentActionResult,
-        ErrorWebAgentActionResult,
-    ],
-    Field(discriminator="type"),
-]

@@ -6,7 +6,7 @@ from types import TracebackType
 from typing import TypeVar
 
 from ..base import BaseShushuComponent
-from ..models import Element, WebAgentAction, WebAgentActionResult
+from ..models import Element, WebAgentAction
 
 WebAgentT = TypeVar("WebAgentT", bound="BaseWebAgent")
 
@@ -36,7 +36,7 @@ class BaseWebAgent(BaseShushuComponent, AbstractContextManager["BaseWebAgent"], 
         self._end()
 
     @abstractmethod
-    def perform(self, action: WebAgentAction) -> WebAgentActionResult:
+    def perform(self, action: WebAgentAction) -> None:
         raise NotImplementedError()
 
     @abstractmethod
