@@ -32,7 +32,6 @@ class ShushuCore(BaseShushuComponent, AbstractContextManager["ShushuCore"]):
         return None
 
     def perform(self, action: CoreAction) -> None:
-        print(f"Performing action: {action}")
         if isinstance(action, WebAgentCoreAction):
             self.web_agent.perform(action.action)
             return

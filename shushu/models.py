@@ -44,6 +44,7 @@ class CoreActionType(str, Enum):
 class WebAgentActionType(str, Enum):
     OPEN_URL = "OPEN_URL"
     SET_SELECTOR = "SET_SELECTOR"
+    CLICK_SELECTED_ELEMENT = "CLICK_SELECTED_ELEMENT"
 
 
 class BaseCoreAction(BaseUpdateTimeAwareModel, BaseEntity[CoreActionId]):  # type: ignore[misc]
@@ -97,7 +98,13 @@ class SetSelectorAction(BaseWebAgentAction):
     selector: Selector
 
 
-WebAgentAction = Annotated[Union[OpenUrlAction, SetSelectorAction], Field(discriminator="type")]
+class ClickSelectedElementAction(BaseWebAgentAction):
+    type: Literal[WebAgentActionType.CLICK_SELECTED_ELEMENT] = WebAgentActionType.CLICK_SELECTED_ELEMENT
+
+
+WebAgentAction = Annotated[
+    Union[OpenUrlAction, SetSelectorAction, ClickSelectedElementAction], Field(discriminator="type")
+]
 
 
 class WebAgentCoreAction(BaseCoreAction):
@@ -167,3 +174,19 @@ class Element(BaseUpdateTimeAwareModel, BaseEntity[ElementId]):  # type: ignore[
         if isinstance(self.root, NavigableString) or self.root is None:
             return None
         return TagString.from_str(self.root.name)
+
+    @property
+    def text(self) -> str:
+        """
+        Returns the text of the element.
+
+        Returns:
+            str: The text of the element.
+
+        >>> element = Element(url=Url(value="https://example.com"), html_source="<div>text</div>")
+        >>> element.text
+        'text'
+        """
+        if isinstance(self.root, NavigableString) or self.root is None:
+            return ""
+        return self.root.get_text()

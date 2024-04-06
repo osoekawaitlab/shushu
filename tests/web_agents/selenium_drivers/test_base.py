@@ -10,7 +10,14 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
 
-from shushu.models import Element, OpenUrlAction, SetSelectorAction, Url, XPathSelector
+from shushu.models import (
+    ClickSelectedElementAction,
+    Element,
+    OpenUrlAction,
+    SetSelectorAction,
+    Url,
+    XPathSelector,
+)
 from shushu.web_agents.selenium_drivers.base import BaseSeleniumDriver
 from shushu.web_agents.selenium_drivers.exceptions import (
     NoElementFoundError,
@@ -113,4 +120,37 @@ def test_perform_select_element_action_no_element_found_error(logger_fixture: Ma
     with pytest.raises(NoElementFoundError):
         sut.get_selected_element()
     mock_web_driver.find_element.assert_called_once_with(By.XPATH, "//div[@id='test']")
+    mock_web_driver.reset_mock()
+
+
+def test_perform_click_selected_element_raises_error_when_no_element_is_selected(logger_fixture: MagicMock) -> None:
+    sut = DerivedSeleniumDriver(logger=logger_fixture)
+    with pytest.raises(NoElementSelectedError):
+        sut.perform(action=ClickSelectedElementAction())
+
+
+def test_perform_click_selected_element_raises_error_when_no_element_found(
+    logger_fixture: MagicMock, mocker: MockerFixture
+) -> None:
+    mock_web_driver.reset_mock()
+    mock_web_driver.find_element.return_value = None
+    mock_web_driver.find_element.side_effect = NoSuchElementException()
+    sut = DerivedSeleniumDriver(logger=logger_fixture)
+    sut.perform(SetSelectorAction(selector=XPathSelector(xpath="//div[@id='test']")))
+    with pytest.raises(NoElementFoundError):
+        sut.perform(action=ClickSelectedElementAction())
+    mock_web_driver.find_element.assert_called_once_with(By.XPATH, "//div[@id='test']")
+    mock_web_driver.reset_mock()
+
+
+def test_perform_click_selected_element_success(logger_fixture: MagicMock, mocker: MockerFixture) -> None:
+    mocker.patch("oltl.Id.generate", return_value=Id("01HTFESX9K7JAB3K2FQSWPKZKS"))
+    mock_web_driver.reset_mock()
+    mock_web_driver.find_element.return_value = MagicMock(spec=WebElement)
+    mock_web_driver.find_element.side_effect = None
+    sut = DerivedSeleniumDriver(logger=logger_fixture)
+    sut.perform(SetSelectorAction(selector=XPathSelector(xpath="//div[@id='test']")))
+    sut.perform(action=ClickSelectedElementAction())
+    mock_web_driver.find_element.assert_called_once_with(By.XPATH, "//div[@id='test']")
+    mock_web_driver.find_element.return_value.click.assert_called_once_with()
     mock_web_driver.reset_mock()
