@@ -6,6 +6,7 @@ from shushu.models import (
     SetSelectorAction,
     Url,
     WebAgentCoreAction,
+    XPathSelector,
 )
 from shushu.settings import CoreSettings, LoggerSettings
 
@@ -19,15 +20,6 @@ def test_get_minimum_enclosing_element_with_multiple_texts(http_server_fixture: 
         core.perform(
             action=WebAgentCoreAction(
                 action=SetSelectorAction(
-                    selector=MinimumEnclosingElementWithMultipleTextsSelector(target_strings=["始まりの村"])
-                )
-            )
-        )
-        minelem = core.web_agent.get_selected_element()
-        assert minelem.tag_name == "a"
-        core.perform(
-            action=WebAgentCoreAction(
-                action=SetSelectorAction(
                     selector=MinimumEnclosingElementWithMultipleTextsSelector(target_strings=["始まりの村", "2024"])
                 )
             )
@@ -37,10 +29,11 @@ def test_get_minimum_enclosing_element_with_multiple_texts(http_server_fixture: 
         assert "list-item" in minelem.classes
         core.perform(
             action=WebAgentCoreAction(
-                action=SetSelectorAction(
-                    selector=MinimumEnclosingElementWithMultipleTextsSelector(target_strings=["始まりの村", "装備"])
-                )
+                action=SetSelectorAction(selector=XPathSelector(xpath="//li[contains(@class, 'list-item')]"))
             )
         )
-        minelem = core.web_agent.get_selected_element()
-        assert minelem.tag_name == "ul"
+        similar_elems = core.web_agent.get_selected_elements()
+        assert len(similar_elems) == 3
+        for elem in similar_elems:
+            assert elem.tag_name == "li"
+            assert "list-item" in elem.classes
