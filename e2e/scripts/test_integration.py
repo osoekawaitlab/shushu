@@ -1,37 +1,46 @@
+from shushu.core import gen_shushu_core
 from shushu.logger import get_logger
 from shushu.models import (
     MinimumEnclosingElementWithMultipleTextsSelector,
     OpenUrlAction,
     SetSelectorAction,
     Url,
+    WebAgentCoreAction,
 )
-from shushu.settings import LoggerSettings, SeleniumWebAgentSettings
-from shushu.web_agents.factory import WebAgentFactory
+from shushu.settings import CoreSettings, LoggerSettings
 
 
 def test_get_minimum_enclosing_element_with_multiple_texts(http_server_fixture: str) -> None:
+    settings = CoreSettings()
     logger = get_logger(settings=LoggerSettings())
-    settings = SeleniumWebAgentSettings()
-    web_agent = WebAgentFactory(logger=logger).create(settings=settings)
-    with web_agent:
-        web_agent.perform(OpenUrlAction(url=Url(value=http_server_fixture)))
-        web_agent.perform(
-            SetSelectorAction(selector=MinimumEnclosingElementWithMultipleTextsSelector(target_strings=["始まりの村"]))
-        )
-        minelem = web_agent.get_selected_element()
-        assert minelem.tag_name == "a"
-        web_agent.perform(
-            SetSelectorAction(
-                selector=MinimumEnclosingElementWithMultipleTextsSelector(target_strings=["始まりの村", "2024"])
+    core = gen_shushu_core(settings=settings, logger=logger)
+    with core:
+        core.perform(action=WebAgentCoreAction(action=OpenUrlAction(url=Url(value=http_server_fixture))))
+        core.perform(
+            action=WebAgentCoreAction(
+                action=SetSelectorAction(
+                    selector=MinimumEnclosingElementWithMultipleTextsSelector(target_strings=["始まりの村"])
+                )
             )
         )
-        minelem = web_agent.get_selected_element()
+        minelem = core.web_agent.get_selected_element()
+        assert minelem.tag_name == "a"
+        core.perform(
+            action=WebAgentCoreAction(
+                action=SetSelectorAction(
+                    selector=MinimumEnclosingElementWithMultipleTextsSelector(target_strings=["始まりの村", "2024"])
+                )
+            )
+        )
+        minelem = core.web_agent.get_selected_element()
         assert minelem.tag_name == "li"
         assert "list-item" in minelem.classes
-        web_agent.perform(
-            SetSelectorAction(
-                selector=MinimumEnclosingElementWithMultipleTextsSelector(target_strings=["始まりの村", "装備"])
+        core.perform(
+            action=WebAgentCoreAction(
+                action=SetSelectorAction(
+                    selector=MinimumEnclosingElementWithMultipleTextsSelector(target_strings=["始まりの村", "装備"])
+                )
             )
         )
-        minelem = web_agent.get_selected_element()
+        minelem = core.web_agent.get_selected_element()
         assert minelem.tag_name == "ul"
