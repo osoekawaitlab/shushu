@@ -3,11 +3,12 @@ from logging import INFO
 from typing import Literal, Optional, TypeVar, Union
 
 from oltl.settings import BaseSettings as OltlBaseSettings
-from pydantic import Field, FilePath, NewPath
+from pydantic import DirectoryPath, Field, FilePath, NewPath
 from pydantic_settings import SettingsConfigDict
 from typing_extensions import Annotated
 
 NewOrExistingPath = Annotated[Union[NewPath, FilePath], "NewOrExistingPath"]
+NewOrExistingDirectoryPath = Annotated[Union[DirectoryPath, NewPath], "NewOrExistingDirectoryPath"]
 SettingsT = TypeVar("SettingsT", bound="BaseSettings")
 
 
@@ -81,8 +82,25 @@ class SeleniumWebAgentSettings(BaseWebAgentSettings):
 WebAgentSettings = Annotated[SeleniumWebAgentSettings, Field(discriminator="type")]
 
 
+class StorageType(str, Enum):
+    LOCAL_FILE = "LOCAL_FILE"
+
+
+class BaseStorageSettings(BaseSettings):
+    type: StorageType
+
+
+class LocalFileStorageSettings(BaseStorageSettings):
+    type: Literal[StorageType.LOCAL_FILE] = StorageType.LOCAL_FILE
+    path: NewOrExistingDirectoryPath
+
+
+StorageSettings = Annotated[LocalFileStorageSettings, Field(discriminator="type")]
+
+
 class CoreSettings(BaseSettings):
     web_agent_settings: WebAgentSettings = Field(default_factory=SeleniumWebAgentSettings)
+    storage_settings: StorageSettings = Field(default_factory=lambda: LocalFileStorageSettings(path="."))
 
 
 class GlobalSettings(BaseSettings):

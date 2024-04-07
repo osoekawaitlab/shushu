@@ -9,6 +9,7 @@ from .types import (
     ClassSet,
     ClassString,
     CoreActionId,
+    DataId,
     ElementId,
     HtmlSource,
     ImageBinary,
@@ -39,6 +40,8 @@ class Url(BaseModel):
 
 class CoreActionType(str, Enum):
     WEB_AGENT = "WEB_AGENT"
+    DATA_PROCESSOR = "DATA_PROCESSOR"
+    STORAGE = "STORAGE"
 
 
 class WebAgentActionType(str, Enum):
@@ -112,7 +115,66 @@ class WebAgentCoreAction(BaseCoreAction):
     action: WebAgentAction
 
 
-CoreAction = Annotated[WebAgentCoreAction, Field(discriminator="type")]
+class DataProcessorType(str, Enum):
+    PYTHON_CODE = "PYTHON_CODE"
+
+
+class BaseDataProcessorAction(BaseUpdateTimeAwareModel, BaseEntity[CoreActionId]):  # type: ignore[misc]
+    type: DataProcessorType
+
+
+class PythonCodeDataProcessor(BaseDataProcessorAction):
+    type: Literal[DataProcessorType.PYTHON_CODE] = DataProcessorType.PYTHON_CODE
+    code: str
+
+
+DataProcessor = Annotated[PythonCodeDataProcessor, Field(discriminator="type")]
+
+
+class DataProcessorCoreAction(BaseCoreAction):
+    type: Literal[CoreActionType.DATA_PROCESSOR] = CoreActionType.DATA_PROCESSOR
+    action: DataProcessor
+
+
+class StorageActionType(str, Enum):
+    SAVE_DATA = "SAVE_DATA"
+
+
+class BaseStorageAction(BaseUpdateTimeAwareModel, BaseEntity[CoreActionId]):  # type: ignore[misc]
+    type: StorageActionType
+
+
+class SaveDataAction(BaseStorageAction):
+    type: Literal[StorageActionType.SAVE_DATA] = StorageActionType.SAVE_DATA
+
+
+StorageAction = Annotated[SaveDataAction, Field(discriminator="type")]
+
+
+class PayloadType(str, Enum):
+    MEMORY = "MEMORY"
+
+
+class BasePayload(BaseModel):
+    type: PayloadType
+
+
+class MemoryPayload(BasePayload):
+    type: Literal[PayloadType.MEMORY] = PayloadType.MEMORY
+
+
+Payload = Annotated[MemoryPayload, Field(discriminator="type")]
+
+
+class StorageCoreAction(BaseCoreAction):
+    type: Literal[CoreActionType.STORAGE] = CoreActionType.STORAGE
+    action: StorageAction
+    payload: Optional[Payload] = None
+
+
+CoreAction = Annotated[
+    Union[WebAgentCoreAction, DataProcessorCoreAction, StorageCoreAction], Field(discriminator="type")
+]
 
 
 class Element(BaseUpdateTimeAwareModel, BaseEntity[ElementId]):  # type: ignore[misc]
@@ -190,3 +252,7 @@ class Element(BaseUpdateTimeAwareModel, BaseEntity[ElementId]):  # type: ignore[
         if isinstance(self.root, NavigableString) or self.root is None:
             return ""
         return self.root.get_text()
+
+
+class BaseDataModel(BaseUpdateTimeAwareModel, BaseEntity[DataId]):  # type: ignore[misc]
+    pass
