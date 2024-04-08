@@ -5,8 +5,15 @@ from types import TracebackType
 from oltl import BaseModel
 
 from .base import BaseShushuComponent
+from .data_processors.factory import DataProcessorFactory
 from .exceptions import MemoryNotSetError
-from .models import CoreAction, MemoryPayload, StorageCoreAction, WebAgentCoreAction
+from .models import (
+    CoreAction,
+    DataProcessorCoreAction,
+    MemoryPayload,
+    StorageCoreAction,
+    WebAgentCoreAction,
+)
 from .settings import CoreSettings
 from .storages.base import BaseStorage
 from .storages.factory import StorageFactory
@@ -61,6 +68,10 @@ class ShushuCore(BaseShushuComponent, AbstractContextManager["ShushuCore"]):
             if isinstance(action.payload, MemoryPayload):
                 self.storage.perform(action=action.action, payload=self.get_memory())
                 return
+        if isinstance(action, DataProcessorCoreAction):
+            data_processor_factory = DataProcessorFactory(logger=self.logger)
+            data_processor = data_processor_factory.create(action=action.action, payload=self.get_memory())
+            self.set_memory(data_processor.perform())
             return
 
 

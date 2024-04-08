@@ -115,6 +115,31 @@ class WebAgentCoreAction(BaseCoreAction):
     action: WebAgentAction
 
 
+class PayloadType(str, Enum):
+    MEMORY = "MEMORY"
+    SELECTED_ELEMENT = "SELECTED_ELEMENT"
+    SELECTED_ELEMENTS = "SELECTED_ELEMENTS"
+
+
+class BasePayload(BaseModel):
+    type: PayloadType
+
+
+class MemoryPayload(BasePayload):
+    type: Literal[PayloadType.MEMORY] = PayloadType.MEMORY
+
+
+class SelectedElementPayload(BasePayload):
+    type: Literal[PayloadType.SELECTED_ELEMENT] = PayloadType.SELECTED_ELEMENT
+
+
+class SelectedElementsPayload(BasePayload):
+    type: Literal[PayloadType.SELECTED_ELEMENTS] = PayloadType.SELECTED_ELEMENTS
+
+
+Payload = Annotated[Union[MemoryPayload, SelectedElementPayload, SelectedElementsPayload], Field(discriminator="type")]
+
+
 class DataProcessorType(str, Enum):
     PYTHON_CODE = "PYTHON_CODE"
 
@@ -134,6 +159,7 @@ DataProcessor = Annotated[PythonCodeDataProcessor, Field(discriminator="type")]
 class DataProcessorCoreAction(BaseCoreAction):
     type: Literal[CoreActionType.DATA_PROCESSOR] = CoreActionType.DATA_PROCESSOR
     action: DataProcessor
+    payload: Payload
 
 
 class StorageActionType(str, Enum):
@@ -149,21 +175,6 @@ class SaveDataAction(BaseStorageAction):
 
 
 StorageAction = Annotated[SaveDataAction, Field(discriminator="type")]
-
-
-class PayloadType(str, Enum):
-    MEMORY = "MEMORY"
-
-
-class BasePayload(BaseModel):
-    type: PayloadType
-
-
-class MemoryPayload(BasePayload):
-    type: Literal[PayloadType.MEMORY] = PayloadType.MEMORY
-
-
-Payload = Annotated[MemoryPayload, Field(discriminator="type")]
 
 
 class StorageCoreAction(BaseCoreAction):
