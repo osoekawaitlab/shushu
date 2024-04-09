@@ -2,20 +2,20 @@ from contextlib import AbstractContextManager
 from logging import Logger
 from types import TracebackType
 
-from oltl import BaseModel
-
 from .actions import (
     CoreAction,
     DataProcessorCoreAction,
     MemoryPayload,
     Payload,
     SelectedElementPayload,
+    SelectedElementsPayload,
     StorageCoreAction,
     WebAgentCoreAction,
 )
 from .base import BaseShushuComponent
 from .data_processors.factory import DataProcessorFactory
 from .exceptions import MemoryNotSetError
+from .models import ArgumentType
 from .settings import CoreSettings
 from .storages.base import BaseStorage
 from .storages.factory import StorageFactory
@@ -28,7 +28,7 @@ class ShushuCore(BaseShushuComponent, AbstractContextManager["ShushuCore"]):
         super(ShushuCore, self).__init__(logger=logger)
         self._web_agent = web_agent
         self._storage = storage
-        self._memroy: None | BaseModel = None
+        self._memroy: None | ArgumentType = None
 
     @property
     def web_agent(self) -> BaseWebAgent:
@@ -38,10 +38,10 @@ class ShushuCore(BaseShushuComponent, AbstractContextManager["ShushuCore"]):
     def storage(self) -> BaseStorage:
         return self._storage
 
-    def set_memory(self, memory: BaseModel) -> None:
+    def set_memory(self, memory: ArgumentType) -> None:
         self._memroy = memory
 
-    def get_memory(self) -> BaseModel:
+    def get_memory(self) -> ArgumentType:
         if self._memroy is None:
             raise MemoryNotSetError()
         return self._memroy
@@ -59,11 +59,13 @@ class ShushuCore(BaseShushuComponent, AbstractContextManager["ShushuCore"]):
         self.web_agent.__exit__(__exc_type, __exc_value, __traceback)
         return None
 
-    def _load_payload(self, payload: Payload) -> BaseModel:
+    def _load_payload(self, payload: Payload) -> ArgumentType:
         if isinstance(payload, MemoryPayload):
             return self.get_memory()
         if isinstance(payload, SelectedElementPayload):
             return self.web_agent.get_selected_element()
+        if isinstance(payload, SelectedElementsPayload):
+            return self.web_agent.get_selected_elements()
         raise NotImplementedError()
 
     def perform(self, action: CoreAction) -> None:

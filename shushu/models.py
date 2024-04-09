@@ -1,4 +1,5 @@
-from typing import Optional
+from collections.abc import Sequence
+from typing import Optional, Union
 
 from bs4 import BeautifulSoup, NavigableString, Tag
 from oltl import BaseEntity, BaseModel, BaseUpdateTimeAwareModel
@@ -111,3 +112,6 @@ class Element(BaseUpdateTimeAwareModel, BaseEntity[ElementId]):  # type: ignore[
 
 class BaseDataModel(BaseUpdateTimeAwareModel, BaseEntity[DataId]):  # type: ignore[misc]
     pass
+
+
+ArgumentType = Union[Element, Sequence[Element], BaseDataModel]

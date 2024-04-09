@@ -1,10 +1,9 @@
 from typing import Optional
 
-from oltl import BaseModel
-
 from ..actions import StorageAction
 from ..base import BaseShushuComponent
+from ..models import ArgumentType
 
 
 class BaseStorage(BaseShushuComponent):
-    def perform(self, action: StorageAction, payload: Optional[BaseModel] = None) -> None: ...
+    def perform(self, action: StorageAction, payload: Optional[ArgumentType] = None) -> None: ...
