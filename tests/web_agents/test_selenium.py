@@ -3,7 +3,8 @@ from unittest.mock import MagicMock
 import pytest
 from pytest_mock import MockerFixture
 
-from shushu.models import OpenUrlAction, Url
+from shushu.actions import OpenUrlAction
+from shushu.models import Url
 from shushu.settings import ChromeSeleniumDriverSettings
 from shushu.web_agents.exceptions import SeleniumDriverNotReadyError
 from shushu.web_agents.selenium import SeleniumWebAgent

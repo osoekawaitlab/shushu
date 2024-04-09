@@ -1,7 +1,7 @@
 from oltl import BaseModel
 
+from ..actions import BaseDataProcessorAction
 from ..base import BaseShushuComponent
-from ..models import BaseDataProcessorAction
 from .base import BaseDataProcessor
 
 

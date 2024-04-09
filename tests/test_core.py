@@ -2,17 +2,17 @@ from unittest.mock import MagicMock
 
 from pytest_mock import MockerFixture
 
-from shushu.core import ShushuCore, gen_shushu_core
-from shushu.models import (
+from shushu.actions import (
     DataProcessorCoreAction,
     MemoryPayload,
     OpenUrlAction,
     PythonCodeDataProcessor,
     SaveDataAction,
     StorageCoreAction,
-    Url,
     WebAgentCoreAction,
 )
+from shushu.core import ShushuCore, gen_shushu_core
+from shushu.models import Url
 from shushu.settings import CoreSettings
 from shushu.storages.base import BaseStorage
 from shushu.storages.factory import StorageFactory

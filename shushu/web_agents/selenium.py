@@ -1,7 +1,8 @@
 from collections.abc import Sequence
 from logging import Logger
 
-from ..models import Element, WebAgentAction
+from ..actions import WebAgentAction
+from ..models import Element
 from ..settings import SeleniumDriverSettings
 from .base import BaseWebAgent
 from .exceptions import SeleniumDriverNotReadyError

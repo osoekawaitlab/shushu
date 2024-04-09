@@ -10,14 +10,13 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
 
-from shushu.models import (
+from shushu.actions import (
     ClickSelectedElementAction,
-    Element,
     OpenUrlAction,
     SetSelectorAction,
-    Url,
     XPathSelector,
 )
+from shushu.models import Element, Url
 from shushu.web_agents.selenium_drivers.base import BaseSeleniumDriver
 from shushu.web_agents.selenium_drivers.exceptions import (
     NoElementFoundError,

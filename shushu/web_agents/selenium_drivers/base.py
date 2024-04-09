@@ -6,19 +6,18 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
 
-from ...base import BaseShushuComponent
-from ...models import (
+from ...actions import (
     ClickSelectedElementAction,
-    Element,
     MinimumEnclosingElementWithMultipleTextsSelector,
     OpenUrlAction,
     RectangleSelector,
     Selector,
     SetSelectorAction,
-    Url,
     WebAgentAction,
     XPathSelector,
 )
+from ...base import BaseShushuComponent
+from ...models import Element, Url
 from ...types import QueryString
 from .exceptions import NoElementFoundError, NoElementSelectedError
 

@@ -2,8 +2,8 @@ from typing import Optional
 
 from oltl import BaseModel
 
+from ..actions import StorageAction
 from ..base import BaseShushuComponent
-from ..models import StorageAction
 
 
 class BaseStorage(BaseShushuComponent):

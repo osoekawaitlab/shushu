@@ -5,8 +5,9 @@ from logging import Logger
 from types import TracebackType
 from typing import TypeVar
 
+from ..actions import WebAgentAction
 from ..base import BaseShushuComponent
-from ..models import Element, WebAgentAction
+from ..models import Element
 
 WebAgentT = TypeVar("WebAgentT", bound="BaseWebAgent")
 
