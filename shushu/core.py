@@ -8,6 +8,8 @@ from .actions import (
     CoreAction,
     DataProcessorCoreAction,
     MemoryPayload,
+    Payload,
+    SelectedElementPayload,
     StorageCoreAction,
     WebAgentCoreAction,
 )
@@ -57,6 +59,13 @@ class ShushuCore(BaseShushuComponent, AbstractContextManager["ShushuCore"]):
         self.web_agent.__exit__(__exc_type, __exc_value, __traceback)
         return None
 
+    def _load_payload(self, payload: Payload) -> BaseModel:
+        if isinstance(payload, MemoryPayload):
+            return self.get_memory()
+        if isinstance(payload, SelectedElementPayload):
+            return self.web_agent.get_selected_element()
+        raise NotImplementedError()
+
     def perform(self, action: CoreAction) -> None:
         if isinstance(action, WebAgentCoreAction):
             self.web_agent.perform(action.action)
@@ -70,7 +79,9 @@ class ShushuCore(BaseShushuComponent, AbstractContextManager["ShushuCore"]):
                 return
         if isinstance(action, DataProcessorCoreAction):
             data_processor_factory = DataProcessorFactory(logger=self.logger)
-            data_processor = data_processor_factory.create(action=action.action, payload=self.get_memory())
+            data_processor = data_processor_factory.create(
+                action=action.action, payload=self._load_payload(action.payload)
+            )
             self.set_memory(data_processor.perform())
             return
 

@@ -8,11 +8,12 @@ from shushu.actions import (
     OpenUrlAction,
     PythonCodeDataProcessor,
     SaveDataAction,
+    SelectedElementPayload,
     StorageCoreAction,
     WebAgentCoreAction,
 )
 from shushu.core import ShushuCore, gen_shushu_core
-from shushu.models import Url
+from shushu.models import Element, Url
 from shushu.settings import CoreSettings
 from shushu.storages.base import BaseStorage
 from shushu.storages.factory import StorageFactory
@@ -95,3 +96,36 @@ def convert(x: Url) -> Data:
     DataProcessorFactory.assert_called_once_with(logger=logger_fixture)
     assert sut.get_memory() == data_processor_factory.create.return_value.perform.return_value
     data_processor_factory.create.return_value.perform.assert_called_once_with()
+
+
+def test_shushu_core_performs_data_processor_action_selected_element_payload(
+    mocker: MockerFixture, logger_fixture: MagicMock
+) -> None:
+    web_agent = mocker.MagicMock(spec=BaseWebAgent)
+    storage = mocker.MagicMock(spec=BaseStorage)
+    DataProcessorFactory = mocker.patch("shushu.core.DataProcessorFactory")
+    data_processor_factory = DataProcessorFactory.return_value
+    selected_element = Element(url=Url(value="http://example.com"), html_source="<html>aaa</html>")
+    web_agent.get_selected_element.return_value = selected_element
+    sut = ShushuCore(web_agent=web_agent, storage=storage, logger=logger_fixture)
+    action = DataProcessorCoreAction(
+        action=PythonCodeDataProcessor(
+            code="""
+from shushu.models import Url, BaseDataModel
+class Data(BaseDataModel):
+    text: str
+def convert(x: Element) -> Data:
+    return Data(text=x.text)
+"""
+        ),
+        payload=SelectedElementPayload(),
+    )
+    sut.perform(action)
+
+    web_agent.perform.assert_not_called()
+    storage.perform.assert_not_called()
+    data_processor_factory.create.assert_called_once_with(action=action.action, payload=selected_element)
+    DataProcessorFactory.assert_called_once_with(logger=logger_fixture)
+    assert sut.get_memory() == data_processor_factory.create.return_value.perform.return_value
+    data_processor_factory.create.return_value.perform.assert_called_once_with()
+    web_agent.get_selected_element.assert_called_once_with()
