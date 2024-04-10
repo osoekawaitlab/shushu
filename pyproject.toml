@@ -31,7 +31,7 @@ dependencies = [
     "oltl @ git+https://github.com/osoekawaitlab/ol-type-library",
     "beautifulsoup4",
     "selenium",
-    "ipython",
+    "jupyter-client",
 ]
 
 [project.urls]
