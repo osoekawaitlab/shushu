@@ -1,6 +1,6 @@
 from enum import Enum
 
-from oltl import BaseBytes, Id, NonEmptyStringMixIn, TrimmedStringMixIn
+from oltl import BaseBytes, BaseString, Id, NonEmptyStringMixIn, TrimmedStringMixIn
 
 
 class UserId(Id): ...
@@ -49,6 +49,9 @@ class DataProcessorId(Id): ...
 
 
 class DataId(Id): ...
+
+
+class CodeString(BaseString): ...
 
 
 class CoreActionType(str, Enum):

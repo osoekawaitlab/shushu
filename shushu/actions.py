@@ -5,6 +5,7 @@ from pydantic import Field
 
 from .models import Rectangle, Url
 from .types import (
+    CodeString,
     CoreActionId,
     CoreActionType,
     DataProcessorId,
@@ -104,7 +105,7 @@ class BaseDataProcessorAction(BaseUpdateTimeAwareModel, BaseEntity[DataProcessor
 
 class PythonCodeDataProcessor(BaseDataProcessorAction):
     type: Literal[DataProcessorType.PYTHON_CODE] = DataProcessorType.PYTHON_CODE
-    code: str
+    code: CodeString
 
 
 DataProcessor = Annotated[PythonCodeDataProcessor, Field(discriminator="type")]
