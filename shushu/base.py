@@ -21,6 +21,15 @@ class BaseShushuComponent:
     def log_info(self, message: str, extra: Mapping[str, object]) -> None:
         self.logger.info(message, extra=extra)
 
+    def log_warning(self, message: str, extra: Mapping[str, object]) -> None:
+        self.logger.warning(message, extra=extra)
+
+    def log_error(self, message: str, extra: Mapping[str, object]) -> None:
+        self.logger.error(message, extra=extra)
+
+    def log_critical(self, message: str, extra: Mapping[str, object]) -> None:
+        self.logger.critical(message, extra=extra)
+
 
 class BaseComponentFactory(BaseShushuComponent, Generic[SettingsT, ComponentT]):
     def __init__(self, logger: Logger) -> None:
