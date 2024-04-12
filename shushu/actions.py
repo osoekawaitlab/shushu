@@ -103,12 +103,12 @@ class BaseDataProcessorAction(BaseUpdateTimeAwareModel, BaseEntity[DataProcessor
     type: DataProcessorType
 
 
-class PythonCodeDataProcessor(BaseDataProcessorAction):
+class PythonCodeDataProcessorAction(BaseDataProcessorAction):
     type: Literal[DataProcessorType.PYTHON_CODE] = DataProcessorType.PYTHON_CODE
     code: CodeString
 
 
-DataProcessor = Annotated[PythonCodeDataProcessor, Field(discriminator="type")]
+DataProcessor = Annotated[PythonCodeDataProcessorAction, Field(discriminator="type")]
 
 
 class DataProcessorCoreAction(BaseCoreAction):

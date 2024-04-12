@@ -6,7 +6,7 @@ from shushu.actions import (
     DataProcessorCoreAction,
     MemoryPayload,
     OpenUrlAction,
-    PythonCodeDataProcessor,
+    PythonCodeDataProcessorAction,
     SaveDataAction,
     SelectedElementPayload,
     SelectedElementsPayload,
@@ -86,7 +86,7 @@ def test_shushu_core_performs_data_processor_action_memory_payload(
     some_data = SomeData(text="http://example.com")
     sut.set_memory(some_data)
     action = DataProcessorCoreAction(
-        action=PythonCodeDataProcessor(
+        action=PythonCodeDataProcessorAction(
             code="""
 from shushu.models import Url, BaseDataModel
 class Data(BaseDataModel):
@@ -118,7 +118,7 @@ def test_shushu_core_performs_data_processor_action_selected_element_payload(
     web_agent.get_selected_element.return_value = selected_element
     sut = ShushuCore(web_agent=web_agent, storage=storage, logger=logger_fixture)
     action = DataProcessorCoreAction(
-        action=PythonCodeDataProcessor(
+        action=PythonCodeDataProcessorAction(
             code="""
 from shushu.models import Element, BaseDataModel
 class Data(BaseDataModel):
@@ -154,7 +154,7 @@ def test_shushu_core_performs_data_processor_action_selected_elements_payload(
     web_agent.get_selected_elements.return_value = selected_elements
     sut = ShushuCore(web_agent=web_agent, storage=storage, logger=logger_fixture)
     action = DataProcessorCoreAction(
-        action=PythonCodeDataProcessor(
+        action=PythonCodeDataProcessorAction(
             code="""
 from shushu.models import Element, BaseDataModel
 class Data(BaseDataModel):
