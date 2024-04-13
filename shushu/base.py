@@ -1,6 +1,6 @@
 from collections.abc import Mapping
 from logging import Logger
-from typing import Generic, TypeVar
+from typing import Generic, Optional, TypeVar
 
 from .settings import SettingsT
 
@@ -15,20 +15,20 @@ class BaseShushuComponent:
     def logger(self) -> Logger:
         return self._logger
 
-    def log_debug(self, message: str, extra: Mapping[str, object]) -> None:
-        self.logger.debug(message, extra=extra)
+    def log_debug(self, message: str, extra: Optional[Mapping[str, object]] = None) -> None:
+        self.logger.debug(message, extra=extra if extra is not None else {})
 
-    def log_info(self, message: str, extra: Mapping[str, object]) -> None:
-        self.logger.info(message, extra=extra)
+    def log_info(self, message: str, extra: Optional[Mapping[str, object]] = None) -> None:
+        self.logger.info(message, extra=extra if extra is not None else {})
 
-    def log_warning(self, message: str, extra: Mapping[str, object]) -> None:
-        self.logger.warning(message, extra=extra)
+    def log_warning(self, message: str, extra: Optional[Mapping[str, object]] = None) -> None:
+        self.logger.warning(message, extra=extra if extra is not None else {})
 
-    def log_error(self, message: str, extra: Mapping[str, object]) -> None:
-        self.logger.error(message, extra=extra)
+    def log_error(self, message: str, extra: Optional[Mapping[str, object]] = None) -> None:
+        self.logger.error(message, extra=extra if extra is not None else {})
 
-    def log_critical(self, message: str, extra: Mapping[str, object]) -> None:
-        self.logger.critical(message, extra=extra)
+    def log_critical(self, message: str, extra: Optional[Mapping[str, object]] = None) -> None:
+        self.logger.critical(message, extra=extra if extra is not None else {})
 
 
 class BaseComponentFactory(BaseShushuComponent, Generic[SettingsT, ComponentT]):
