@@ -111,6 +111,10 @@ class Element(BaseUpdateTimeAwareModel, BaseEntity[ElementId]):  # type: ignore[
         return self.root.get_text()
 
 
+class Elements(BaseModel):
+    elements: Sequence[Element]
+
+
 class BaseDataModel(BaseUpdateTimeAwareModel, BaseEntity[DataId]):  # type: ignore[misc]
     pass
 
