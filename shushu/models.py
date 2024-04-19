@@ -3,7 +3,7 @@ from typing import Any, Optional
 
 from bs4 import BeautifulSoup, NavigableString, Tag
 from oltl import BaseEntity, BaseModel, BaseUpdateTimeAwareModel, json_schema_to_model
-from pydantic import AnyHttpUrl, Field
+from pydantic import AnyHttpUrl
 
 from .types import (
     ClassSet,
