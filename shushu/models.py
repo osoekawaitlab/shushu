@@ -1,19 +1,20 @@
 from collections.abc import Sequence
-from typing import Any, Optional, Union
+from typing import Any, Optional
 
 from bs4 import BeautifulSoup, NavigableString, Tag
-from oltl import BaseEntity, BaseModel, BaseUpdateTimeAwareModel
-from pydantic import AnyHttpUrl, create_model
-from pydantic.alias_generators import to_snake
+from oltl import BaseEntity, BaseModel, BaseUpdateTimeAwareModel, json_schema_to_model
+from pydantic import AnyHttpUrl, Field
 
 from .types import (
     ClassSet,
     ClassString,
     DataId,
-    ElementId,
+    ElementSequenceTypeId,
+    ElementTypeId,
     HtmlSource,
     ImageBinary,
     TagString,
+    TypeId,
     UserId,
     UserNameString,
 )
@@ -34,7 +35,12 @@ class Url(BaseModel):
     value: AnyHttpUrl
 
 
-class Element(BaseUpdateTimeAwareModel, BaseEntity[ElementId]):  # type: ignore[misc]
+class BaseDataModel(BaseUpdateTimeAwareModel, BaseEntity[DataId]):  # type: ignore[misc]
+    type_id: TypeId
+
+
+class Element(BaseDataModel):
+    type_id: TypeId = ElementTypeId
     url: Url
     html_source: HtmlSource
     screenshot_png: Optional[ImageBinary] = None
@@ -111,15 +117,9 @@ class Element(BaseUpdateTimeAwareModel, BaseEntity[ElementId]):  # type: ignore[
         return self.root.get_text()
 
 
-class ElementSequence(BaseModel):
+class ElementSequence(BaseDataModel):
+    type_id: TypeId = ElementSequenceTypeId
     elements: Sequence[Element]
-
-
-class BaseDataModel(BaseUpdateTimeAwareModel, BaseEntity[DataId]):  # type: ignore[misc]
-    pass
-
-
-ArgumentType = Union[Element, Sequence[Element], BaseDataModel]
 
 
 def json_schema_to_data_model(json_schema: dict[str, Any]) -> type[BaseDataModel]:
@@ -133,30 +133,16 @@ def json_schema_to_data_model(json_schema: dict[str, Any]) -> type[BaseDataModel
 
     >>> from freezegun import freeze_time
     >>> from unittest.mock import patch
-    >>> from oltl import Id
-    >>> from datetime import datetime, timezone
+    >>> from oltl import Id, Timestamp
     >>> class ADataModel(BaseDataModel):
+    ...     type_id: TypeId = TypeId("01HVA7ZG5GKAK9QVBVV5029H3V")
     ...     a: int
     ...     b: str
     ...
-    >>> expected = ADataModel(a=1, b="2")
+    >>> expected = ADataModel(id=DataId('01HV9913KVW7R5G0XFKDD3JM21'), created_at=Timestamp(1712962126123456), updated_at=Timestamp(1712962126123456), a=1, b="2")
     >>> json_schema = ADataModel.model_json_schema()
     >>> dynamic_model = json_schema_to_data_model(json_schema)
-    >>> ts = datetime(2024, 4, 12, 22, 48, 46, 123456, timezone.utc)
-    >>> with patch("oltl.Id.generate", return_value=Id("01HV9913KVW7R5G0XFKDD3JM21")), freeze_time(ts):
-    ...     dynamic_model(a=1, b="2")
-    ADataModel(id=DataId('01HV9913KVW7R5G0XFKDD3JM21'), created_at=Timestamp(1712962126123456), updated_at=Timestamp(1712962126123456), a=1, b='2')
+    >>> dynamic_model(id="01HV9913KVW7R5G0XFKDD3JM21", created_at=1712962126123456, updated_at=1712962126123456, type_id="01HVA7ZG5GKAK9QVBVV5029H3V", a=1, b="2")
+    ADataModel(id='01HV9913KVW7R5G0XFKDD3JM21', created_at=1712962126123456, updated_at=1712962126123456, type_id='01HVA7ZG5GKAK9QVBVV5029H3V', a=1, b='2')
     """  # noqa: E501
-    class_name = json_schema["title"] if isinstance(json_schema["title"], str) else "DynamicDataModel"
-    dynamic_model = create_model(
-        class_name,
-        __base__=BaseDataModel,
-        **{
-            to_snake(k): ({"integer": int, "string": str, "number": float, "boolean": bool}.get(v["type"], str), ...)
-            for k, v in json_schema["properties"].items()
-            if to_snake(k) not in BaseDataModel.model_fields
-        },
-    )  # type: ignore[call-overload]
-    if not isinstance(dynamic_model, type):
-        raise TypeError("The dynamic model is not a type.")
-    return dynamic_model
+    return json_schema_to_model(json_schema, BaseDataModel)

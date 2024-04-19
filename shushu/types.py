@@ -27,9 +27,6 @@ class XPath(TrimmedStringMixIn, NonEmptyStringMixIn): ...
 class QueryString(TrimmedStringMixIn, NonEmptyStringMixIn): ...
 
 
-class ElementId(Id): ...
-
-
 class HtmlSource(TrimmedStringMixIn, NonEmptyStringMixIn): ...
 
 
@@ -49,6 +46,9 @@ class DataProcessorId(Id): ...
 
 
 class DataId(Id): ...
+
+
+class TypeId(Id): ...
 
 
 class CodeString(BaseString): ...
@@ -84,3 +84,7 @@ class StorageActionType(str, Enum):
 
 class DataProcessorType(str, Enum):
     PYTHON_CODE = "PYTHON_CODE"
+
+
+ElementTypeId = TypeId("01HVRW8WGGA24A44DYMG86C5X4")
+ElementSequenceTypeId = TypeId("01HVRW90TDQTE16481BCEQ7A88")
