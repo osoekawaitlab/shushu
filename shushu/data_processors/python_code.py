@@ -28,7 +28,7 @@ class PythonCodeDataProcessor(BaseDataProcessor):
             return cls._export_element(payload)
         if isinstance(payload, ElementSequence):
             return cls._export_element_sequence(payload)
-        raise ValueError(f"Unsupported payload type: {type(payload)}")
+        raise TypeError(f"Unsupported payload type: {type(payload)}")
 
     def perform(self) -> BaseDataModel:
         model_exporting_string = self._export_payload(self.payload)
@@ -40,7 +40,6 @@ class PythonCodeDataProcessor(BaseDataProcessor):
                 + f"""
 import json
 import sys
-from shushu.models import {self.payload.__class__.__name__}
 
 res = convert({self.payload.__class__.__name__}(**json.loads('{model_exporting_string}')))
 json.dump(res.model_json_schema(), sys.stdout, ensure_ascii=False)
