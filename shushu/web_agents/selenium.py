@@ -1,8 +1,7 @@
-from collections.abc import Sequence
 from logging import Logger
 
 from ..actions import WebAgentAction
-from ..models import Element
+from ..models import Element, ElementSequence
 from ..settings import SeleniumDriverSettings
 from .base import BaseWebAgent
 from .exceptions import SeleniumDriverNotReadyError
@@ -35,5 +34,5 @@ class SeleniumWebAgent(BaseWebAgent):
     def get_selected_element(self) -> Element:
         return self.driver.get_selected_element()
 
-    def get_selected_elements(self) -> Sequence[Element]:
+    def get_selected_elements(self) -> ElementSequence:
         return self.driver.get_selected_elements()

@@ -16,7 +16,7 @@ from shushu.actions import (
     SetSelectorAction,
     XPathSelector,
 )
-from shushu.models import Element, Url
+from shushu.models import Element, ElementSequence, Url
 from shushu.web_agents.selenium_drivers.base import BaseSeleniumDriver
 from shushu.web_agents.selenium_drivers.exceptions import (
     NoElementFoundError,
@@ -85,22 +85,27 @@ def test_perform_set_selector_and_get(logger_fixture: MagicMock, mocker: MockerF
     with freeze_time(dt):
         actual_selected_element = sut.get_selected_element()
     assert actual_selected_element == expected_selected_element
-    expected_selected_elements = [
-        Element(
-            id=id_,
-            url=Url(value="http://localhost:8080/"),
-            html_source="<div>test0</div>",
-            created_at=dt,
-            updated_at=dt,
-        ),
-        Element(
-            id=id_,
-            url=Url(value="http://localhost:8080/"),
-            html_source="<div>test1</div>",
-            created_at=dt,
-            updated_at=dt,
-        ),
-    ]
+    expected_selected_elements = ElementSequence(
+        id=id_,
+        created_at=dt,
+        updated_at=dt,
+        elements=[
+            Element(
+                id=id_,
+                url=Url(value="http://localhost:8080/"),
+                html_source="<div>test0</div>",
+                created_at=dt,
+                updated_at=dt,
+            ),
+            Element(
+                id=id_,
+                url=Url(value="http://localhost:8080/"),
+                html_source="<div>test1</div>",
+                created_at=dt,
+                updated_at=dt,
+            ),
+        ],
+    )
     with freeze_time(dt):
         actual_selected_elements = sut.get_selected_elements()
     assert actual_selected_elements == expected_selected_elements

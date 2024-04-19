@@ -15,7 +15,7 @@ from .actions import (
 from .base import BaseShushuComponent
 from .data_processors.factory import DataProcessorFactory
 from .exceptions import MemoryNotSetError
-from .models import ArgumentType
+from .models import BaseDataModel
 from .settings import CoreSettings
 from .storages.base import BaseStorage
 from .storages.factory import StorageFactory
@@ -28,7 +28,7 @@ class ShushuCore(BaseShushuComponent, AbstractContextManager["ShushuCore"]):
         super(ShushuCore, self).__init__(logger=logger)
         self._web_agent = web_agent
         self._storage = storage
-        self._memroy: None | ArgumentType = None
+        self._memroy: None | BaseDataModel = None
 
     @property
     def web_agent(self) -> BaseWebAgent:
@@ -38,10 +38,10 @@ class ShushuCore(BaseShushuComponent, AbstractContextManager["ShushuCore"]):
     def storage(self) -> BaseStorage:
         return self._storage
 
-    def set_memory(self, memory: ArgumentType) -> None:
+    def set_memory(self, memory: BaseDataModel) -> None:
         self._memroy = memory
 
-    def get_memory(self) -> ArgumentType:
+    def get_memory(self) -> BaseDataModel:
         if self._memroy is None:
             raise MemoryNotSetError()
         return self._memroy
@@ -59,13 +59,13 @@ class ShushuCore(BaseShushuComponent, AbstractContextManager["ShushuCore"]):
         self.web_agent.__exit__(__exc_type, __exc_value, __traceback)
         return None
 
-    def _load_payload(self, payload: Payload) -> ArgumentType:
-        if isinstance(payload, MemoryPayload):
-            return self.get_memory()
+    def _load_payload(self, payload: Payload) -> BaseDataModel:
         if isinstance(payload, SelectedElementPayload):
             return self.web_agent.get_selected_element()
         if isinstance(payload, SelectedElementsPayload):
             return self.web_agent.get_selected_elements()
+        if isinstance(payload, MemoryPayload):
+            return self.get_memory()
         raise NotImplementedError()
 
     def perform(self, action: CoreAction) -> None:

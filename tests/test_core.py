@@ -18,6 +18,7 @@ from shushu.models import BaseDataModel, Element, Url
 from shushu.settings import CoreSettings
 from shushu.storages.base import BaseStorage
 from shushu.storages.factory import StorageFactory
+from shushu.types import TypeId
 from shushu.web_agents.base import BaseWebAgent
 from shushu.web_agents.factory import WebAgentFactory
 
@@ -62,6 +63,7 @@ def test_shushu_core_performs_storage_action(mocker: MockerFixture, logger_fixtu
     sut = ShushuCore(web_agent=web_agent, storage=storage, logger=logger_fixture)
 
     class SomeData(BaseDataModel):
+        type_id: TypeId = TypeId("01HVVEC2DKJT4TS9RJ0TYA8G90")
         text: str
 
     some_data = SomeData(text="http://example.com")
@@ -81,6 +83,7 @@ def test_shushu_core_performs_data_processor_action_memory_payload(
     sut = ShushuCore(web_agent=web_agent, storage=storage, logger=logger_fixture)
 
     class SomeData(BaseDataModel):
+        type_id: TypeId = TypeId("01HVVEDPWBX7G02AG8B0JMHSEA")
         text: str
 
     some_data = SomeData(text="http://example.com")

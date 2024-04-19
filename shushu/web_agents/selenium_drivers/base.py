@@ -17,7 +17,7 @@ from ...actions import (
     XPathSelector,
 )
 from ...base import BaseShushuComponent
-from ...models import Element, Url
+from ...models import Element, ElementSequence, Url
 from ...types import QueryString
 from .exceptions import NoElementFoundError, NoElementSelectedError
 
@@ -96,7 +96,7 @@ class BaseSeleniumDriver(BaseShushuComponent):
             html_source=element.get_attribute("outerHTML"),
         )
 
-    def get_selected_elements(self) -> list[Element]:
+    def get_selected_elements(self) -> ElementSequence:
         if self._selector is None:
             raise NoElementSelectedError()
         try:
@@ -107,4 +107,4 @@ class BaseSeleniumDriver(BaseShushuComponent):
         except NoSuchElementException:
             raise NoElementFoundError()
         url = Url(value=self._driver.current_url)
-        return [Element(url=url, html_source=d.get_attribute("outerHTML")) for d in elements]
+        return ElementSequence(elements=[Element(url=url, html_source=d.get_attribute("outerHTML")) for d in elements])

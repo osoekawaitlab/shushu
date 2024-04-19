@@ -145,4 +145,7 @@ def json_schema_to_data_model(json_schema: dict[str, Any]) -> type[BaseDataModel
     >>> dynamic_model(id="01HV9913KVW7R5G0XFKDD3JM21", created_at=1712962126123456, updated_at=1712962126123456, type_id="01HVA7ZG5GKAK9QVBVV5029H3V", a=1, b="2")
     ADataModel(id='01HV9913KVW7R5G0XFKDD3JM21', created_at=1712962126123456, updated_at=1712962126123456, type_id='01HVA7ZG5GKAK9QVBVV5029H3V', a=1, b='2')
     """  # noqa: E501
-    return json_schema_to_model(json_schema, BaseDataModel)
+    dynamic_model = json_schema_to_model(json_schema, BaseDataModel)
+    if not issubclass(dynamic_model, BaseDataModel):
+        raise ValueError(f"Expected a subclass of BaseDataModel, but got {dynamic_model}")
+    return dynamic_model

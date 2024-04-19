@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from collections.abc import Sequence
 from contextlib import AbstractContextManager
 from logging import Logger
 from types import TracebackType
@@ -7,7 +6,7 @@ from typing import TypeVar
 
 from ..actions import WebAgentAction
 from ..base import BaseShushuComponent
-from ..models import Element
+from ..models import Element, ElementSequence
 
 WebAgentT = TypeVar("WebAgentT", bound="BaseWebAgent")
 
@@ -45,5 +44,5 @@ class BaseWebAgent(BaseShushuComponent, AbstractContextManager["BaseWebAgent"], 
         raise NotImplementedError()
 
     @abstractmethod
-    def get_selected_elements(self) -> Sequence[Element]:
+    def get_selected_elements(self) -> ElementSequence:
         raise NotImplementedError()
