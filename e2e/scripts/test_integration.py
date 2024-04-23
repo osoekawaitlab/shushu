@@ -5,6 +5,7 @@ from tempfile import TemporaryDirectory
 from shushu.actions import (
     ClickSelectedElementAction,
     DataProcessorCoreAction,
+    MemoryPayload,
     MinimumEnclosingElementWithMultipleTextsSelector,
     OpenUrlAction,
     PythonCodeDataProcessorAction,
@@ -71,6 +72,7 @@ from typing import Sequence
 from shushu.models import BaseDataModel, ElementSequence
 from shushu.types import TypeId
 from pydantic import AnyHttpUrl
+from urllib.parse import urljoin
 
 
 class Datum(BaseDataModel):
@@ -87,16 +89,17 @@ class Data(BaseDataModel):
 def convert(element_sequence: ElementSequence) -> Data:
     return Data(data=[
         Datum(
-            link=element.root.find('a')['href'] if element.root.find('a')['href'].startswith('http') else f"{element.url.value}{element.root.find('a')['href']}",
+            link=element.root.find('a')['href'] if element.root.find('a')['href'].startswith('http') else urljoin(str(element.url.value), element.root.find('a')['href']),
             title=element.root.find('a').text.strip(),
             date=element.root.find('p').text.strip().replace('日付: ', ''),
             description=element.root.find_all('p')[1].text.strip()
         ) for element in element_sequence.elements
     ])
-"""
+"""  # noqa: E501
             ),
             payload=SelectedElementsPayload(),
         )
+        data_dir = os.path.join(tempdir, "01HVVHBXEP12V5VNWP9V9FVQ4Z")
         with core:
             core.perform(action=WebAgentCoreAction(action=OpenUrlAction(url=Url(value=http_server_fixture))))
             core.perform(
@@ -122,11 +125,15 @@ def convert(element_sequence: ElementSequence) -> Data:
 
             core.perform(action=scraper_action)
 
-            core.perform(action=StorageCoreAction(action=SaveDataAction()))
-            for fn in os.listdir(tempdir):
-                with open(os.path.join(tempdir, fn), "r") as f:
+            core.perform(action=StorageCoreAction(action=SaveDataAction(), payload=MemoryPayload()))
+            assert len(os.listdir(data_dir)) == 1
+            for fn in os.listdir(data_dir):
+                with open(os.path.join(data_dir, fn), "r") as f:
                     raw = json.load(f)
-                    assert any(all(raw[k] == e[k] for k in ("link", "title", "date", "description")) for e in expected)
+                    for d in raw["data"]:
+                        assert any(
+                            [all([d[k] == e[k] for k in ("link", "title", "date", "description")]) for e in expected]
+                        )
 
             core.perform(
                 action=WebAgentCoreAction(
@@ -146,8 +153,13 @@ def convert(element_sequence: ElementSequence) -> Data:
             assert "最終決戦" in similar_elems2.elements[2].text
             core.perform(action=scraper_action)
 
-            core.perform(action=StorageCoreAction(action=SaveDataAction()))
-            for fn in os.listdir(tempdir):
-                with open(os.path.join(tempdir, fn), "r") as f:
+            core.perform(action=StorageCoreAction(action=SaveDataAction(), payload=MemoryPayload()))
+            assert len(os.listdir(data_dir)) == 2
+            for fn in os.listdir(data_dir):
+                with open(os.path.join(data_dir, fn), "r") as f:
                     raw = json.load(f)
-                    assert any(all(raw[k] == e[k] for k in ("link", "title", "date", "description")) for e in expected)
+                    for d in raw["data"]:
+                        print(d)
+                        assert any(
+                            [all([d[k] == e[k] for k in ("link", "title", "date", "description")]) for e in expected]
+                        )
