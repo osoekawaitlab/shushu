@@ -68,9 +68,33 @@ def test_shushu_core_performs_storage_action(mocker: MockerFixture, logger_fixtu
 
     some_data = SomeData(text="http://example.com")
     sut.set_memory(some_data)
-    action = StorageCoreAction(payload=MemoryPayload(), action=SaveDataAction(data="data"))
+    action = StorageCoreAction(payload=MemoryPayload(), action=SaveDataAction())
     sut.perform(action)
     storage.perform.assert_called_once_with(action=action.action, payload=some_data)
+
+
+def test_shushu_core_perform_storage_action_nested_attribute_payload(
+    mocker: MockerFixture, logger_fixture: MagicMock
+) -> None:
+    web_agent = mocker.MagicMock(spec=BaseWebAgent)
+    storage = mocker.MagicMock(spec=BaseStorage)
+    sut = ShushuCore(web_agent=web_agent, storage=storage, logger=logger_fixture)
+
+    class NestedData(BaseDataModel):
+        type_id: TypeId = TypeId("01HW8CA3MS650ZCN82F20Y4B4T")
+        text: str
+
+    class SomeData(BaseDataModel):
+        type_id: TypeId = TypeId("01HW8CABFPQQJ0BCX0NFF4NE2S")
+        text: str
+        nested: NestedData
+
+    nested = NestedData(text="nested")
+    some_data = SomeData(text="http://example.com", nested=nested)
+    sut.set_memory(some_data)
+    action = StorageCoreAction(payload=MemoryPayload(attribute="nested"), action=SaveDataAction())
+    sut.perform(action)
+    storage.perform.assert_called_once_with(action=action.action, payload=nested)
 
 
 def test_shushu_core_performs_data_processor_action_memory_payload(

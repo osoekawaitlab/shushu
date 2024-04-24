@@ -86,6 +86,8 @@ class BasePayload(BaseModel):
 
 class MemoryPayload(BasePayload):
     type: Literal[PayloadType.MEMORY] = PayloadType.MEMORY
+    attribute: Optional[str] = None
+    expand: Optional[bool] = None
 
 
 class SelectedElementPayload(BasePayload):

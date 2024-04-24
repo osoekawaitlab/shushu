@@ -77,6 +77,11 @@ class ShushuCore(BaseShushuComponent, AbstractContextManager["ShushuCore"]):
                 self.storage.perform(action=action.action)
                 return
             if isinstance(action.payload, MemoryPayload):
+                if action.payload.attribute is not None:
+                    self.storage.perform(
+                        action=action.action, payload=getattr(self.get_memory(), action.payload.attribute)
+                    )
+                    return
                 self.storage.perform(action=action.action, payload=self.get_memory())
                 return
         if isinstance(action, DataProcessorCoreAction):
