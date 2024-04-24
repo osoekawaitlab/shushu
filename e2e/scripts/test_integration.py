@@ -159,7 +159,6 @@ def convert(element_sequence: ElementSequence) -> Data:
                 with open(os.path.join(data_dir, fn), "r") as f:
                     raw = json.load(f)
                     for d in raw["data"]:
-                        print(d)
                         assert any(
                             [all([d[k] == e[k] for k in ("link", "title", "date", "description")]) for e in expected]
                         )
