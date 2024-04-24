@@ -99,7 +99,7 @@ def convert(element_sequence: ElementSequence) -> Data:
             ),
             payload=SelectedElementsPayload(),
         )
-        data_dir = os.path.join(tempdir, "01HVVHBXEP12V5VNWP9V9FVQ4Z")
+        data_dir = os.path.join(tempdir, "01HVVHBNM0PJMN3PEHBP6DB0WF")
         with core:
             core.perform(action=WebAgentCoreAction(action=OpenUrlAction(url=Url(value=http_server_fixture))))
             core.perform(
@@ -125,15 +125,16 @@ def convert(element_sequence: ElementSequence) -> Data:
 
             core.perform(action=scraper_action)
 
-            core.perform(action=StorageCoreAction(action=SaveDataAction(), payload=MemoryPayload()))
-            assert len(os.listdir(data_dir)) == 1
+            core.perform(
+                action=StorageCoreAction(action=SaveDataAction(), payload=MemoryPayload(attribute="data", expand=True))
+            )
+            assert len(os.listdir(data_dir)) == 3
             for fn in os.listdir(data_dir):
                 with open(os.path.join(data_dir, fn), "r") as f:
-                    raw = json.load(f)
-                    for d in raw["data"]:
-                        assert any(
-                            [all([d[k] == e[k] for k in ("link", "title", "date", "description")]) for e in expected]
-                        )
+                    d = json.load(f)
+                    assert any(
+                        [all([d[k] == e[k] for k in ("link", "title", "date", "description")]) for e in expected]
+                    )
 
             core.perform(
                 action=WebAgentCoreAction(
@@ -153,12 +154,13 @@ def convert(element_sequence: ElementSequence) -> Data:
             assert "最終決戦" in similar_elems2.elements[2].text
             core.perform(action=scraper_action)
 
-            core.perform(action=StorageCoreAction(action=SaveDataAction(), payload=MemoryPayload()))
+            core.perform(
+                action=StorageCoreAction(action=SaveDataAction(), payload=MemoryPayload(attribute="data", expand=True))
+            )
             assert len(os.listdir(data_dir)) == 2
             for fn in os.listdir(data_dir):
                 with open(os.path.join(data_dir, fn), "r") as f:
-                    raw = json.load(f)
-                    for d in raw["data"]:
-                        assert any(
-                            [all([d[k] == e[k] for k in ("link", "title", "date", "description")]) for e in expected]
-                        )
+                    d = json.load(f)
+                    assert any(
+                        [all([d[k] == e[k] for k in ("link", "title", "date", "description")]) for e in expected]
+                    )
