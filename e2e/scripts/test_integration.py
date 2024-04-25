@@ -157,7 +157,7 @@ def convert(element_sequence: ElementSequence) -> Data:
             core.perform(
                 action=StorageCoreAction(action=SaveDataAction(), payload=MemoryPayload(attribute="data", expand=True))
             )
-            assert len(os.listdir(data_dir)) == 2
+            assert len(os.listdir(data_dir)) == 6
             for fn in os.listdir(data_dir):
                 with open(os.path.join(data_dir, fn), "r") as f:
                     d = json.load(f)

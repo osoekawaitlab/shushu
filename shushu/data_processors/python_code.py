@@ -1,5 +1,4 @@
 import json
-from io import StringIO
 from logging import Logger
 from subprocess import run
 
@@ -53,6 +52,6 @@ sys.stdout.write(res.model_dump_json())
         if result.returncode != 0:
             self.log_error(result.stderr)
             raise PythonCodeError(result.stderr)
-        (json_schema, serizlied_data) = [json.loads(ln) for ln in StringIO(result.stdout).readlines()]
-        dynamic_model = json_schema_to_data_model(json_schema)
-        return dynamic_model.model_validate(serizlied_data)
+        (json_schema_line, serizlied_data_line) = result.stdout.split("\n")
+        dynamic_model = json_schema_to_data_model(json.loads(json_schema_line))
+        return dynamic_model.model_validate_json(serizlied_data_line)

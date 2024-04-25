@@ -1,3 +1,4 @@
+from collections.abc import Sequence
 from unittest.mock import MagicMock
 
 from pytest_mock import MockerFixture
@@ -95,6 +96,30 @@ def test_shushu_core_perform_storage_action_nested_attribute_payload(
     action = StorageCoreAction(payload=MemoryPayload(attribute="nested"), action=SaveDataAction())
     sut.perform(action)
     storage.perform.assert_called_once_with(action=action.action, payload=nested)
+
+
+def test_shushu_core_performs_storage_action_nested_attribute_payload_expand(
+    mocker: MockerFixture, logger_fixture: MagicMock
+) -> None:
+    web_agent = mocker.MagicMock(spec=BaseWebAgent)
+    storage = mocker.MagicMock(spec=BaseStorage)
+    sut = ShushuCore(web_agent=web_agent, storage=storage, logger=logger_fixture)
+
+    class NestedData(BaseDataModel):
+        type_id: TypeId = TypeId("01HW8CA3MS650ZCN82F20Y4B4T")
+        text: str
+
+    class SomeData(BaseDataModel):
+        type_id: TypeId = TypeId("01HW8CABFPQQJ0BCX0NFF4NE2S")
+        text: str
+        nested_seq: Sequence[NestedData]
+
+    nested_seq = [NestedData(text="nested1"), NestedData(text="nested2"), NestedData(text="nested3")]
+    some_data = SomeData(text="http://example.com", nested_seq=nested_seq)
+    sut.set_memory(some_data)
+    action = StorageCoreAction(payload=MemoryPayload(attribute="nested_seq", expand=True), action=SaveDataAction())
+    sut.perform(action)
+    storage.perform.assert_has_calls([mocker.call(action=action.action, payload=nested) for nested in nested_seq])
 
 
 def test_shushu_core_performs_data_processor_action_memory_payload(
