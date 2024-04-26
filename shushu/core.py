@@ -5,6 +5,7 @@ from types import TracebackType
 from .actions import (
     CoreAction,
     DataProcessorCoreAction,
+    GenerateIdCoreAction,
     MemoryPayload,
     Payload,
     SelectedElementPayload,
@@ -15,10 +16,11 @@ from .actions import (
 from .base import BaseShushuComponent
 from .data_processors.factory import DataProcessorFactory
 from .exceptions import MemoryNotSetError
-from .models import BaseDataModel
+from .models import BaseDataModel, IdData
 from .settings import CoreSettings
 from .storages.base import BaseStorage
 from .storages.factory import StorageFactory
+from .types import DataId
 from .web_agents.base import BaseWebAgent
 from .web_agents.factory import WebAgentFactory
 
@@ -69,6 +71,9 @@ class ShushuCore(BaseShushuComponent, AbstractContextManager["ShushuCore"]):
         raise NotImplementedError()
 
     def perform(self, action: CoreAction) -> None:
+        if isinstance(action, GenerateIdCoreAction):
+            self.set_memory(IdData(data_id=DataId.generate()))
+            return
         if isinstance(action, WebAgentCoreAction):
             self.web_agent.perform(action.action)
             return

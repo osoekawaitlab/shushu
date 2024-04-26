@@ -58,6 +58,7 @@ class CoreActionType(str, Enum):
     WEB_AGENT = "WEB_AGENT"
     DATA_PROCESSOR = "DATA_PROCESSOR"
     STORAGE = "STORAGE"
+    GENERATE_ID = "GENERATE_ID"
 
 
 class WebAgentActionType(str, Enum):
@@ -88,3 +89,4 @@ class DataProcessorType(str, Enum):
 
 ElementTypeId = TypeId("01HVRW8WGGA24A44DYMG86C5X4")
 ElementSequenceTypeId = TypeId("01HVRW90TDQTE16481BCEQ7A88")
+IdTypeId = TypeId("01HVA7ZG5GKAK9QVBVV5029H3V")

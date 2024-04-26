@@ -25,6 +25,10 @@ class BaseCoreAction(BaseUpdateTimeAwareModel, BaseEntity[CoreActionId]):  # typ
     type: CoreActionType
 
 
+class GenerateIdCoreAction(BaseCoreAction):
+    type: Literal[CoreActionType.GENERATE_ID] = CoreActionType.GENERATE_ID
+
+
 class BaseWebAgentAction(BaseUpdateTimeAwareModel, BaseEntity[WebAgentActionId]):  # type: ignore[misc]
     type: WebAgentActionType
 
@@ -137,5 +141,6 @@ class StorageCoreAction(BaseCoreAction):
 
 
 CoreAction = Annotated[
-    Union[WebAgentCoreAction, DataProcessorCoreAction, StorageCoreAction], Field(discriminator="type")
+    Union[GenerateIdCoreAction, WebAgentCoreAction, DataProcessorCoreAction, StorageCoreAction],
+    Field(discriminator="type"),
 ]

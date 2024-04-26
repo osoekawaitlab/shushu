@@ -5,6 +5,7 @@ from pytest_mock import MockerFixture
 
 from shushu.actions import (
     DataProcessorCoreAction,
+    GenerateIdCoreAction,
     MemoryPayload,
     OpenUrlAction,
     PythonCodeDataProcessorAction,
@@ -15,11 +16,11 @@ from shushu.actions import (
     WebAgentCoreAction,
 )
 from shushu.core import ShushuCore, gen_shushu_core
-from shushu.models import BaseDataModel, Element, Url
+from shushu.models import BaseDataModel, Element, IdData, Url
 from shushu.settings import CoreSettings
 from shushu.storages.base import BaseStorage
 from shushu.storages.factory import StorageFactory
-from shushu.types import TypeId
+from shushu.types import DataId, TypeId
 from shushu.web_agents.base import BaseWebAgent
 from shushu.web_agents.factory import WebAgentFactory
 
@@ -226,3 +227,17 @@ def convert(x: list[Element]) -> Data:
     assert sut.get_memory() == data_processor_factory.create.return_value.perform.return_value
     data_processor_factory.create.return_value.perform.assert_called_once_with()
     web_agent.get_selected_elements.assert_called_once_with()
+
+
+def test_shushu_core_performs_generate_id_action(mocker: MockerFixture, logger_fixture: MagicMock) -> None:
+    web_agent = mocker.MagicMock(spec=BaseWebAgent)
+    storage = mocker.MagicMock(spec=BaseStorage)
+    generated_id = DataId("01HWDAHQ897SHJ888X4GW7PWF5")
+    mocker.patch("oltl.Id.generate", return_value=generated_id)
+    expected = IdData(data_id=generated_id)
+    sut = ShushuCore(web_agent=web_agent, storage=storage, logger=logger_fixture)
+    action = GenerateIdCoreAction()
+    sut.perform(action)
+    actual = sut.get_memory()
+    assert isinstance(actual, IdData)
+    assert actual.data_id == expected.data_id

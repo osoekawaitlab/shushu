@@ -12,6 +12,7 @@ from .types import (
     ElementSequenceTypeId,
     ElementTypeId,
     HtmlSource,
+    IdTypeId,
     ImageBinary,
     TagString,
     TypeId,
@@ -37,6 +38,11 @@ class Url(BaseModel):
 
 class BaseDataModel(BaseUpdateTimeAwareModel, BaseEntity[DataId]):  # type: ignore[misc]
     type_id: TypeId
+
+
+class IdData(BaseDataModel):
+    type_id: TypeId = IdTypeId
+    data_id: DataId
 
 
 class Element(BaseDataModel):
