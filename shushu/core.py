@@ -2,6 +2,8 @@ from contextlib import AbstractContextManager
 from logging import Logger
 from types import TracebackType
 
+from oltl import Id
+
 from .actions import (
     CoreAction,
     DataProcessorCoreAction,
@@ -20,7 +22,6 @@ from .models import BaseDataModel, IdData
 from .settings import CoreSettings
 from .storages.base import BaseStorage
 from .storages.factory import StorageFactory
-from .types import DataId
 from .web_agents.base import BaseWebAgent
 from .web_agents.factory import WebAgentFactory
 
@@ -72,7 +73,7 @@ class ShushuCore(BaseShushuComponent, AbstractContextManager["ShushuCore"]):
 
     def perform(self, action: CoreAction) -> None:
         if isinstance(action, GenerateIdCoreAction):
-            self.set_memory(IdData(data_id=DataId.generate()))
+            self.set_memory(IdData(value=Id.generate()))
             return
         if isinstance(action, WebAgentCoreAction):
             self.web_agent.perform(action.action)

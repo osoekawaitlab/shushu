@@ -2,7 +2,13 @@ from collections.abc import Sequence
 from typing import Any, Optional
 
 from bs4 import BeautifulSoup, NavigableString, Tag
-from oltl import BaseEntity, BaseModel, BaseUpdateTimeAwareModel, json_schema_to_model
+from oltl import (
+    BaseEntity,
+    BaseModel,
+    BaseUpdateTimeAwareModel,
+    Id,
+    json_schema_to_model,
+)
 from pydantic import AnyHttpUrl
 
 from .types import (
@@ -42,7 +48,7 @@ class BaseDataModel(BaseUpdateTimeAwareModel, BaseEntity[DataId]):  # type: igno
 
 class IdData(BaseDataModel):
     type_id: TypeId = IdTypeId
-    data_id: DataId
+    value: Id
 
 
 class Element(BaseDataModel):

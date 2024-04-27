@@ -1,6 +1,7 @@
 from collections.abc import Sequence
 from unittest.mock import MagicMock
 
+from oltl import Id
 from pytest_mock import MockerFixture
 
 from shushu.actions import (
@@ -20,7 +21,7 @@ from shushu.models import BaseDataModel, Element, IdData, Url
 from shushu.settings import CoreSettings
 from shushu.storages.base import BaseStorage
 from shushu.storages.factory import StorageFactory
-from shushu.types import DataId, TypeId
+from shushu.types import TypeId
 from shushu.web_agents.base import BaseWebAgent
 from shushu.web_agents.factory import WebAgentFactory
 
@@ -232,12 +233,13 @@ def convert(x: list[Element]) -> Data:
 def test_shushu_core_performs_generate_id_action(mocker: MockerFixture, logger_fixture: MagicMock) -> None:
     web_agent = mocker.MagicMock(spec=BaseWebAgent)
     storage = mocker.MagicMock(spec=BaseStorage)
-    generated_id = DataId("01HWDAHQ897SHJ888X4GW7PWF5")
+    generated_id = Id("01HWDAHQ897SHJ888X4GW7PWF5")
     mocker.patch("oltl.Id.generate", return_value=generated_id)
-    expected = IdData(data_id=generated_id)
+    expected = IdData(value=generated_id)
     sut = ShushuCore(web_agent=web_agent, storage=storage, logger=logger_fixture)
     action = GenerateIdCoreAction()
     sut.perform(action)
     actual = sut.get_memory()
     assert isinstance(actual, IdData)
-    assert actual.data_id == expected.data_id
+    assert actual.value == expected.value
+    assert isinstance(actual.value, Id)
