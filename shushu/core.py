@@ -12,6 +12,7 @@ from .actions import (
     Payload,
     SelectedElementPayload,
     SelectedElementsPayload,
+    SequencialCoreAction,
     StorageCoreAction,
     WebAgentCoreAction,
 )
@@ -72,6 +73,10 @@ class ShushuCore(BaseShushuComponent, AbstractContextManager["ShushuCore"]):
         raise NotImplementedError()
 
     def perform(self, action: CoreAction) -> None:
+        if isinstance(action, SequencialCoreAction):
+            for sub_action in action.actions:
+                self.perform(sub_action)
+            return
         if isinstance(action, GenerateIdCoreAction):
             self.set_memory(IdData(value=Id.generate()))
             return

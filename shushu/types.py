@@ -59,6 +59,7 @@ class CoreActionType(str, Enum):
     DATA_PROCESSOR = "DATA_PROCESSOR"
     STORAGE = "STORAGE"
     GENERATE_ID = "GENERATE_ID"
+    SEQUENCIAL = "SEQUENCIAL"
 
 
 class WebAgentActionType(str, Enum):

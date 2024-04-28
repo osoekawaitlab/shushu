@@ -1,4 +1,4 @@
-from typing import Annotated, Literal, Optional, Union
+from typing import Annotated, Literal, Optional, Sequence, Union
 
 from oltl import BaseEntity, BaseModel, BaseUpdateTimeAwareModel
 from pydantic import Field
@@ -21,7 +21,7 @@ from .types import (
 )
 
 
-class BaseCoreAction(BaseUpdateTimeAwareModel, BaseEntity[CoreActionId]):  # type: ignore[misc]
+class BaseCoreAction(BaseUpdateTimeAwareModel, BaseEntity[CoreActionId]):
     type: CoreActionType
 
 
@@ -29,7 +29,12 @@ class GenerateIdCoreAction(BaseCoreAction):
     type: Literal[CoreActionType.GENERATE_ID] = CoreActionType.GENERATE_ID
 
 
-class BaseWebAgentAction(BaseUpdateTimeAwareModel, BaseEntity[WebAgentActionId]):  # type: ignore[misc]
+class SequencialCoreAction(BaseCoreAction):
+    type: Literal[CoreActionType.SEQUENCIAL] = CoreActionType.SEQUENCIAL
+    actions: Sequence["CoreAction"]
+
+
+class BaseWebAgentAction(BaseUpdateTimeAwareModel, BaseEntity[WebAgentActionId]):
     type: WebAgentActionType
 
 
@@ -38,7 +43,7 @@ class OpenUrlAction(BaseWebAgentAction):
     url: Url
 
 
-class BaseSelector(BaseUpdateTimeAwareModel, BaseEntity[SelectorId]):  # type: ignore[misc]
+class BaseSelector(BaseUpdateTimeAwareModel, BaseEntity[SelectorId]):
     type: SelectorType
 
 
@@ -105,7 +110,7 @@ class SelectedElementsPayload(BasePayload):
 Payload = Annotated[Union[MemoryPayload, SelectedElementPayload, SelectedElementsPayload], Field(discriminator="type")]
 
 
-class BaseDataProcessorAction(BaseUpdateTimeAwareModel, BaseEntity[DataProcessorId]):  # type: ignore[misc]
+class BaseDataProcessorAction(BaseUpdateTimeAwareModel, BaseEntity[DataProcessorId]):
     type: DataProcessorType
 
 
@@ -123,7 +128,7 @@ class DataProcessorCoreAction(BaseCoreAction):
     payload: Payload
 
 
-class BaseStorageAction(BaseUpdateTimeAwareModel, BaseEntity[CoreActionId]):  # type: ignore[misc]
+class BaseStorageAction(BaseUpdateTimeAwareModel, BaseEntity[CoreActionId]):
     type: StorageActionType
 
 
@@ -141,6 +146,6 @@ class StorageCoreAction(BaseCoreAction):
 
 
 CoreAction = Annotated[
-    Union[GenerateIdCoreAction, WebAgentCoreAction, DataProcessorCoreAction, StorageCoreAction],
+    Union[GenerateIdCoreAction, WebAgentCoreAction, DataProcessorCoreAction, StorageCoreAction, SequencialCoreAction],
     Field(discriminator="type"),
 ]

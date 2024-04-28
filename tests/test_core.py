@@ -5,6 +5,7 @@ from oltl import Id
 from pytest_mock import MockerFixture
 
 from shushu.actions import (
+    ClickSelectedElementAction,
     DataProcessorCoreAction,
     GenerateIdCoreAction,
     MemoryPayload,
@@ -13,8 +14,11 @@ from shushu.actions import (
     SaveDataAction,
     SelectedElementPayload,
     SelectedElementsPayload,
+    SequencialCoreAction,
+    SetSelectorAction,
     StorageCoreAction,
     WebAgentCoreAction,
+    XPathSelector,
 )
 from shushu.core import ShushuCore, gen_shushu_core
 from shushu.models import BaseDataModel, Element, IdData, Url
@@ -243,3 +247,22 @@ def test_shushu_core_performs_generate_id_action(mocker: MockerFixture, logger_f
     assert isinstance(actual, IdData)
     assert actual.value == expected.value
     assert isinstance(actual.value, Id)
+
+
+def test_shushu_core_performs_sequential_core_actions(mocker: MockerFixture, logger_fixture: MagicMock) -> None:
+    web_agent = mocker.MagicMock(spec=BaseWebAgent)
+    storage = mocker.MagicMock(spec=BaseStorage)
+    sut = ShushuCore(web_agent=web_agent, storage=storage, logger=logger_fixture)
+
+    action1 = WebAgentCoreAction(action=OpenUrlAction(url=Url(value="http://example.com")))
+    action2 = WebAgentCoreAction(action=SetSelectorAction(selector=XPathSelector(xpath="//a")))
+    action3 = WebAgentCoreAction(action=ClickSelectedElementAction())
+    action = SequencialCoreAction(actions=[action1, action2, action3])
+    with sut:
+        sut.perform(action)
+        web_agent.perform.assert_has_calls(
+            [mocker.call(action1.action), mocker.call(action2.action), mocker.call(action3.action)]
+        )
+        web_agent.__enter__.assert_called_once_with()
+        web_agent.__exit__.assert_not_called()
+    web_agent.__exit__.assert_called_once_with(None, None, None)
