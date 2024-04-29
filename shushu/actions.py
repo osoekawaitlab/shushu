@@ -119,12 +119,12 @@ class PythonCodeDataProcessorAction(BaseDataProcessorAction):
     code: CodeString
 
 
-DataProcessor = Annotated[PythonCodeDataProcessorAction, Field(discriminator="type")]
+DataProcessorAction = Annotated[PythonCodeDataProcessorAction, Field(discriminator="type")]
 
 
 class DataProcessorCoreAction(BaseCoreAction):
     type: Literal[CoreActionType.DATA_PROCESSOR] = CoreActionType.DATA_PROCESSOR
-    action: DataProcessor
+    action: DataProcessorAction
     payload: Payload
 
 
