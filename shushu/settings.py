@@ -27,9 +27,9 @@ class LoggerSettings(BaseSettings):
         File path to write logs to. Set if you want to write logs to a file.
 
     >>> LoggerSettings()
-    LoggerSettings(level=20, file_path=None)
+    LoggerSettings(config_path=None, level=20, file_path=None)
     >>> LoggerSettings(level=10, file_path="logs.log")
-    LoggerSettings(level=10, file_path=PosixPath('logs.log'))
+    LoggerSettings(config_path=None, level=10, file_path=PosixPath('logs.log'))
     """
 
     level: int = Field(default=INFO)
