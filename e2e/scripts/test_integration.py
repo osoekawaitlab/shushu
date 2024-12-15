@@ -2,6 +2,8 @@ import json
 import os
 from tempfile import TemporaryDirectory
 
+from ollogger import get_logger
+
 from shushu.actions import (
     ClickSelectedElementAction,
     DataProcessorCoreAction,
@@ -17,7 +19,6 @@ from shushu.actions import (
     XPathSelector,
 )
 from shushu.core import gen_shushu_core
-from shushu.logger import get_logger
 from shushu.models import Url
 from shushu.settings import CoreSettings, LocalFileStorageSettings, LoggerSettings
 

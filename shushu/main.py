@@ -1,10 +1,11 @@
 import os
 from argparse import ArgumentParser
 
+from ollogger import get_logger
+
 from . import __version__
 from .core import gen_shushu_core
 from .interfaces.factory import InterfaceFactory
-from .logger import get_logger
 from .settings import GlobalSettings
 
 

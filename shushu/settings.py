@@ -1,7 +1,7 @@
 from enum import Enum
-from logging import INFO
-from typing import Literal, Optional, TypeVar, Union
+from typing import Literal, TypeVar, Union
 
+from ollogger import LoggerSettings
 from oltl.settings import BaseSettings as OltlBaseSettings
 from pydantic import DirectoryPath, Field, FilePath, NewPath
 from pydantic_settings import SettingsConfigDict
@@ -14,26 +14,6 @@ SettingsT = TypeVar("SettingsT", bound="BaseSettings")
 
 class BaseSettings(OltlBaseSettings):
     model_config = SettingsConfigDict(env_prefix="SHUSHU_")
-
-
-class LoggerSettings(BaseSettings):
-    """
-    Logger settings
-
-    level: int = INFO
-        Logging level
-
-    file_path: Optional[NewOrExistingPath] = None
-        File path to write logs to. Set if you want to write logs to a file.
-
-    >>> LoggerSettings()
-    LoggerSettings(config_path=None, level=20, file_path=None)
-    >>> LoggerSettings(level=10, file_path="logs.log")
-    LoggerSettings(config_path=None, level=10, file_path=PosixPath('logs.log'))
-    """
-
-    level: int = Field(default=INFO)
-    file_path: Optional[NewOrExistingPath] = Field(default=None)
 
 
 class InterfaceType(str, Enum):
